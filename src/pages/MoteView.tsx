@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { toPng } from 'html-to-image';
 import { findMote } from '../lib/motes';
 import { HAND, PEN, INK_SEPIA } from '../components/handwriting';
+import { CoverArt } from '../components/cover-art';
 
 export default function MoteView() {
   const { slug = '' } = useParams();
@@ -52,6 +53,9 @@ export default function MoteView() {
           ))}
           <DownloadButton slug={slug} />
         </div>
+      </div>
+      <div className="mb-4 sm:mb-6 rounded-sm overflow-hidden shadow-md">
+        <CoverArt slug={slug} />
       </div>
       <Suspense
         fallback={
