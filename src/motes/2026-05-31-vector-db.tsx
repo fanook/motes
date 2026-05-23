@@ -14,24 +14,24 @@ import type { MoteMeta } from '../lib/motes';
 
 export const meta: MoteMeta = {
   title: 'Vector DB 向量数据库',
-  date: '2026-05-31',
+  date: '2026-05-23',
   tags: ['AI 入门', 'RAG', '基础设施'],
   summary: '在百万、 上亿向量里"找最像的几个"靠什么算法。 HNSW / IVF / PQ， 主流产品对比。',
 };
 
 function Term({ en, ipa, ch }: { en: string; ipa?: string; ch?: string }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5 flex-wrap">
+    <span className="whitespace-nowrap">
       <strong style={{ color: INK_SEPIA }}>{en}</strong>
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
           style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
-          {ipa}
+          {" "}{ipa}
         </span>
       )}
-      {ch && <span className="text-xs sm:text-sm text-stone-500">≈ {ch}</span>}
+      {ch && <span className="text-xs sm:text-sm text-stone-500"> ≈ {ch}</span>}
     </span>
   );
 }

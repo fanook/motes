@@ -16,24 +16,24 @@ import type { MoteMeta } from '../lib/motes';
 
 export const meta: MoteMeta = {
   title: '采样：T / top-p / top-k',
-  date: '2026-05-28',
+  date: '2026-05-23',
   tags: ['AI 入门', 'LLM'],
   summary: '模型怎么"挑下一个 token"。 三个常用参数的原理、 区别、 实战建议。',
 };
 
 function Term({ en, ipa, ch }: { en: string; ipa?: string; ch?: string }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5 flex-wrap">
+    <span className="whitespace-nowrap">
       <strong style={{ color: INK_SEPIA }}>{en}</strong>
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
           style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
-          {ipa}
+          {" "}{ipa}
         </span>
       )}
-      {ch && <span className="text-xs sm:text-sm text-stone-500">≈ {ch}</span>}
+      {ch && <span className="text-xs sm:text-sm text-stone-500"> ≈ {ch}</span>}
     </span>
   );
 }

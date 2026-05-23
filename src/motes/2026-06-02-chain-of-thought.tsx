@@ -14,24 +14,24 @@ import type { MoteMeta } from '../lib/motes';
 
 export const meta: MoteMeta = {
   title: 'Chain of Thought',
-  date: '2026-06-02',
+  date: '2026-05-23',
   tags: ['AI 入门', 'LLM', 'Prompting'],
   summary: '"想想再答"为什么管用。 从一句魔法 prompt 到 reasoning 模型的演化。',
 };
 
 function Term({ en, ipa, ch }: { en: string; ipa?: string; ch?: string }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5 flex-wrap">
+    <span className="whitespace-nowrap">
       <strong style={{ color: INK_SEPIA }}>{en}</strong>
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
           style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
-          {ipa}
+          {" "}{ipa}
         </span>
       )}
-      {ch && <span className="text-xs sm:text-sm text-stone-500">≈ {ch}</span>}
+      {ch && <span className="text-xs sm:text-sm text-stone-500"> ≈ {ch}</span>}
     </span>
   );
 }

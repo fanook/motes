@@ -16,7 +16,7 @@ import type { MoteMeta } from '../lib/motes';
 
 export const meta: MoteMeta = {
   title: 'Prompt Caching 是什么',
-  date: '2026-05-24',
+  date: '2026-05-23',
   tags: ['AI 入门', 'LLM', '成本'],
   summary:
     '从 KV cache 到块级哈希 —— "省 90% 钱"是怎么实现的。',
@@ -32,18 +32,18 @@ function Term({
   ch?: string;
 }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5 flex-wrap">
+    <span className="whitespace-nowrap">
       <strong style={{ color: INK_SEPIA }}>{en}</strong>
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
           style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
-          {ipa}
+          {" "}{ipa}
         </span>
       )}
       {ch && (
-        <span className="text-xs sm:text-sm text-stone-500">≈ {ch}</span>
+        <span className="text-xs sm:text-sm text-stone-500"> ≈ {ch}</span>
       )}
     </span>
   );
@@ -120,8 +120,8 @@ export default function Mote() {
         </p>
         <p className="pt-2">
           <Term en="Prompt Caching" ch="提示词缓存" /> 就是为这个设计的 ——
-          <strong style={{ color: INK_GREEN }}>相同前缀缓存住， 下次省 90% 钱、 80% 延迟</strong>
-          <sup>[1][2]</sup>。
+          <span style={{ color: INK_GREEN }}>相同前缀缓存住， 下次省 90% 钱、 80% 延迟</span>
+          <sup style={{ whiteSpace: 'nowrap' }}>[1][2]</sup>。
         </p>
       </div>
 

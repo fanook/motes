@@ -14,7 +14,7 @@ import type { MoteMeta } from '../lib/motes';
 
 export const meta: MoteMeta = {
   title: 'BERT 与上下文 embedding',
-  date: '2026-06-10',
+  date: '2026-05-23',
   tags: ['AI 入门', 'NLP', '历史'],
   summary:
     'GPT 时代之前的王者。 双向 attention、 masked language modeling， 为什么"一词一向量"被它打破。',
@@ -22,17 +22,17 @@ export const meta: MoteMeta = {
 
 function Term({ en, ipa, ch }: { en: string; ipa?: string; ch?: string }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5 flex-wrap">
+    <span className="whitespace-nowrap">
       <strong style={{ color: INK_SEPIA }}>{en}</strong>
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
           style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
-          {ipa}
+          {" "}{ipa}
         </span>
       )}
-      {ch && <span className="text-xs sm:text-sm text-stone-500">≈ {ch}</span>}
+      {ch && <span className="text-xs sm:text-sm text-stone-500"> ≈ {ch}</span>}
     </span>
   );
 }

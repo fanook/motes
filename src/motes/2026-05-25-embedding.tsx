@@ -17,7 +17,7 @@ import type { MoteMeta } from '../lib/motes';
 
 export const meta: MoteMeta = {
   title: 'Embedding 是什么',
-  date: '2026-05-25',
+  date: '2026-05-23',
   tags: ['AI 入门', 'LLM', 'RAG'],
   summary:
     '把"意义"放进空间里。 Word2Vec 到现代 embedding 模型， 维度、 距离度量、 选型与应用。',
@@ -33,18 +33,18 @@ function Term({
   ch?: string;
 }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5 flex-wrap">
+    <span className="whitespace-nowrap">
       <strong style={{ color: INK_SEPIA }}>{en}</strong>
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
           style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
-          {ipa}
+          {" "}{ipa}
         </span>
       )}
       {ch && (
-        <span className="text-xs sm:text-sm text-stone-500">≈ {ch}</span>
+        <span className="text-xs sm:text-sm text-stone-500"> ≈ {ch}</span>
       )}
     </span>
   );

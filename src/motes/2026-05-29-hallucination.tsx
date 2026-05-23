@@ -14,24 +14,24 @@ import type { MoteMeta } from '../lib/motes';
 
 export const meta: MoteMeta = {
   title: 'Hallucination 幻觉',
-  date: '2026-05-29',
+  date: '2026-05-23',
   tags: ['AI 入门', 'LLM', '可靠性'],
   summary: '为什么 AI 会一本正经胡说八道。 分类、 根因、 怎么缓解。',
 };
 
 function Term({ en, ipa, ch }: { en: string; ipa?: string; ch?: string }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5 flex-wrap">
+    <span className="whitespace-nowrap">
       <strong style={{ color: INK_SEPIA }}>{en}</strong>
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
           style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
-          {ipa}
+          {" "}{ipa}
         </span>
       )}
-      {ch && <span className="text-xs sm:text-sm text-stone-500">≈ {ch}</span>}
+      {ch && <span className="text-xs sm:text-sm text-stone-500"> ≈ {ch}</span>}
     </span>
   );
 }

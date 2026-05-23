@@ -15,7 +15,7 @@ import type { MoteMeta } from '../lib/motes';
 
 export const meta: MoteMeta = {
   title: '训练 vs 微调 vs RAG',
-  date: '2026-06-04',
+  date: '2026-05-23',
   tags: ['AI 入门', 'LLM', '选型'],
   summary:
     '"模型不会我们要的事"怎么办？ 三种解法的代价、 适用场景、 选型决策框架。',
@@ -23,17 +23,17 @@ export const meta: MoteMeta = {
 
 function Term({ en, ipa, ch }: { en: string; ipa?: string; ch?: string }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5 flex-wrap">
+    <span className="whitespace-nowrap">
       <strong style={{ color: INK_SEPIA }}>{en}</strong>
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
           style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
-          {ipa}
+          {" "}{ipa}
         </span>
       )}
-      {ch && <span className="text-xs sm:text-sm text-stone-500">≈ {ch}</span>}
+      {ch && <span className="text-xs sm:text-sm text-stone-500"> ≈ {ch}</span>}
     </span>
   );
 }
