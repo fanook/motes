@@ -70,7 +70,7 @@ function Term({
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
-          style={{ fontFamily: 'ui-monospace, Consolas, monospace' }}
+          style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
           {ipa}
         </span>
@@ -92,7 +92,7 @@ function BPERow({ tokens, note }: { tokens: string[]; note?: string }) {
             className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-xs sm:text-sm"
             style={{
               backgroundColor: tokenColors[i % tokenColors.length],
-              fontFamily: 'ui-monospace, Consolas, monospace',
+              fontFamily: 'var(--font-hand-pen)',
               color: INK,
               minWidth: 20,
             }}
@@ -495,7 +495,7 @@ export default function Mote() {
           className="mt-3 p-3 sm:p-4 rounded-sm text-xs sm:text-sm leading-relaxed whitespace-pre overflow-x-auto"
           style={{
             backgroundColor: 'rgba(255,255,255,0.6)',
-            fontFamily: 'ui-monospace, Consolas, monospace',
+            fontFamily: 'var(--font-hand-pen)',
             color: INK,
           }}
         >

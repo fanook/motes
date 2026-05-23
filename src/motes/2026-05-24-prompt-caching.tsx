@@ -37,7 +37,7 @@ function Term({
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
-          style={{ fontFamily: 'ui-monospace, Consolas, monospace' }}
+          style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
           {ipa}
         </span>
@@ -222,7 +222,7 @@ export default function Mote() {
           className="mt-2 p-3 sm:p-4 rounded-sm text-xs sm:text-sm overflow-x-auto"
           style={{
             backgroundColor: 'rgba(255,255,255,0.6)',
-            fontFamily: 'ui-monospace, Consolas, monospace',
+            fontFamily: 'var(--font-hand-pen)',
             color: INK,
           }}
         >

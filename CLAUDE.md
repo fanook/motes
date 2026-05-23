@@ -254,7 +254,12 @@ similarity(a, b) := a · b / (|a| × |b|)
 ```
 ❌ 反例：写一段可直接 copy 跑的 Python（含 `import openai` 之类）
 
-例外：当文章本身就是讲某个具体 API / 格式时（如 chat template 的 special tokens、 prompt 结构），可以保留少量真实样例； 但其他场景默认伪代码。
+**🚫 全站禁止 `ui-monospace / Consolas / monospace` 字体**：哪怕在伪代码、 IPA 音标、 chat template、 BPE 切分块这种"看起来像代码"的地方， **一律用 `var(--font-hand-pen)`**。 视觉一致优先于"代码块识别度"。 用户的整本笔记是手写风， 不能突然冒出一段等宽字。
+
+✅ `style={{ fontFamily: 'var(--font-hand-pen)' }}` 或 `style={{ fontFamily: PEN }}`
+❌ `style={{ fontFamily: 'ui-monospace, Consolas, monospace' }}`
+
+之前 CLAUDE.md 写过的"chat template 等可保留 monospace 例外"已**取消**， 不要再加回来。
 
 ## 目标读者
 

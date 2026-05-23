@@ -29,7 +29,7 @@ function Term({ en, ipa, ch }: { en: string; ipa?: string; ch?: string }) {
       {ipa && (
         <span
           className="text-xs sm:text-sm text-stone-400"
-          style={{ fontFamily: 'ui-monospace, Consolas, monospace' }}
+          style={{ fontFamily: 'var(--font-hand-pen)' }}
         >
           {ipa}
         </span>
