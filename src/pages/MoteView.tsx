@@ -1,5 +1,6 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { toPng } from 'html-to-image';
 import { findMote } from '../lib/motes';
 import { HAND, PEN, INK_SEPIA } from '../components/handwriting';
 
@@ -49,6 +50,7 @@ export default function MoteView() {
               · {t}
             </span>
           ))}
+          <DownloadButton slug={slug} />
         </div>
       </div>
       <Suspense
@@ -77,5 +79,46 @@ function BackLink() {
       <span className="text-2xl leading-none">←</span>
       <span className="text-xl sm:text-2xl">返回</span>
     </Link>
+  );
+}
+
+function DownloadButton({ slug }: { slug: string }) {
+  const [state, setState] = useState<'idle' | 'busy' | 'done'>('idle');
+
+  const handleClick = async () => {
+    const node = document.getElementById('mote-paper');
+    if (!node) return;
+    setState('busy');
+    try {
+      const dataUrl = await toPng(node, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#fdfaf0',
+      });
+      const link = document.createElement('a');
+      link.download = `${slug}.png`;
+      link.href = dataUrl;
+      link.click();
+      setState('done');
+      setTimeout(() => setState('idle'), 1500);
+    } catch (e) {
+      console.error(e);
+      setState('idle');
+    }
+  };
+
+  const label =
+    state === 'busy' ? '生成中…' : state === 'done' ? '✓ 已下载' : '⤓ 下载图片';
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={state === 'busy'}
+      className="text-sm sm:text-base text-stone-500 hover:text-stone-700 transition-colors px-2 py-1 disabled:opacity-50"
+      style={{ fontFamily: PEN }}
+      data-no-screenshot
+    >
+      {label}
+    </button>
   );
 }

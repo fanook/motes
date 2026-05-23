@@ -15,6 +15,7 @@
     "@fontsource/long-cang": "^5.2.8",
     "@fontsource/ma-shan-zheng": "^5.2.9",
     "@tailwindcss/vite": "^4.3.0",
+    "html-to-image": "^1.11.13",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.15.1",

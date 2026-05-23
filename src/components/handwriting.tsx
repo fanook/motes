@@ -27,6 +27,8 @@ export function Paper({
 }) {
   return (
     <div
+      id="mote-paper"
+      data-mote-paper
       className={`relative px-4 py-6 sm:px-12 sm:py-14 rounded-sm shadow-xl min-h-[60vh] sm:min-h-[70vh] ${className ?? ''}`}
       style={{
         backgroundColor: '#fdfaf0',
