@@ -1,73 +1,51 @@
-# React + TypeScript + Vite
+# motes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+每天用 AI 整理一些细碎的知识。每条知识 = 一个独立的 React 组件，可任意排版与交互。
 
-Currently, two official plugins are available:
+## 快速开始
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev      # 本地预览
+npm run build    # 产出 dist/，部署到 Cloudflare Pages
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 添加一条新 mote
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+在 `src/motes/` 下新建文件 `YYYY-MM-DD-slug.tsx`：
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```tsx
+import type { MoteMeta } from '../lib/motes';
+
+export const meta: MoteMeta = {
+  title: '标题',
+  date: '2026-05-23',
+  tags: ['可选'],
+  summary: '可选的一句话简介',
+};
+
+export default function Mote() {
+  return <article>...</article>;
+}
 ```
+
+保存即可，列表会自动收录，访问路径 `/m/<slug>`。
+
+## 项目结构
+
+```
+src/
+├── motes/      ← 每条知识一个 .tsx
+├── pages/      ← Home（列表）/ MoteView（详情）
+├── lib/        ← motes.ts 自动扫描收录
+├── App.tsx     ← 路由
+└── index.css   ← Tailwind 入口
+```
+
+## 技术栈
+
+Vite · React · TypeScript · React Router · Tailwind CSS v4
+
+## 部署
+
+Cloudflare Pages：连接此 repo，构建命令 `npm run build`，输出目录 `dist`。`public/_redirects` 已配置 SPA fallback。
