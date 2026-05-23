@@ -11,20 +11,7 @@ import {
   RoughUnderline,
   ShuffleIcon,
 } from '../components/handwriting';
-import { CoverArt } from '../components/cover-art';
-
-const cardColors = [
-  '#fef3c7',
-  '#dbeafe',
-  '#fce7f3',
-  '#d1fae5',
-  '#ede9fe',
-  '#ffedd5',
-  '#fee2e2',
-  '#cffafe',
-  '#fef9c3',
-  '#e0f2fe',
-];
+import { CoverArt, paletteForSlug } from '../components/cover-art';
 
 function simpleHash(s: string): number {
   let h = 0;
@@ -116,7 +103,7 @@ function ColorListView({ motes }: { motes: MoteEntry[] }) {
     <ul className="space-y-2.5 sm:space-y-4">
       {motes.map(({ slug, meta }) => {
         const h = simpleHash(slug);
-        const bg = cardColors[h % cardColors.length];
+        const bg = paletteForSlug(slug).tint;
         const tilt = (((h >> 4) % 5) - 2) * 0.2;
         return (
           <li key={slug}>

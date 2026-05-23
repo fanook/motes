@@ -110,7 +110,7 @@ function DownloadButton({ slug }: { slug: string }) {
   };
 
   const label =
-    state === 'busy' ? '生成中…' : state === 'done' ? '✓ 已下载' : '⤓ 下载图片';
+    state === 'busy' ? '生成中…' : state === 'done' ? '✓ 已下载' : '⤓ 下载为图片';
 
   return (
     <button

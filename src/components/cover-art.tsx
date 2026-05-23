@@ -11,23 +11,29 @@ type Palette = {
   card: string; // 符号填色 / 卡片白
   dot: string; // halftone 圆点色
   paper: string; // 外层 paper border
+  tint: string; // 列表卡片背景： 跟封面色互补的浅色调
 };
 
 const PALETTES: Palette[] = [
-  { bg: '#c47350', ink: '#1a1a1a', card: '#fdfaf0', dot: '#8b4a30', paper: '#f4ecd8' },
-  { bg: '#a4b596', ink: '#1a1a1a', card: '#fdfaf0', dot: '#5f7050', paper: '#f4ecd8' },
-  { bg: '#d4a847', ink: '#1a1a1a', card: '#fdfaf0', dot: '#9a7820', paper: '#f4ecd8' },
-  { bg: '#3e4863', ink: '#f4ecd8', card: '#fdfaf0', dot: '#1d2335', paper: '#f4ecd8' },
-  { bg: '#d68b94', ink: '#1a1a1a', card: '#fdfaf0', dot: '#a5616a', paper: '#f4ecd8' },
-  { bg: '#7a93a8', ink: '#1a1a1a', card: '#fdfaf0', dot: '#465e74', paper: '#f4ecd8' },
-  { bg: '#b59760', ink: '#1a1a1a', card: '#fdfaf0', dot: '#7a6535', paper: '#f4ecd8' },
-  { bg: '#8a9a5b', ink: '#1a1a1a', card: '#fdfaf0', dot: '#5e6b3e', paper: '#f4ecd8' },
+  { bg: '#c47350', ink: '#1a1a1a', card: '#fdfaf0', dot: '#8b4a30', paper: '#f4ecd8', tint: '#fde6d8' }, // 砖红 → 浅桃
+  { bg: '#a4b596', ink: '#1a1a1a', card: '#fdfaf0', dot: '#5f7050', paper: '#f4ecd8', tint: '#dde8d0' }, // 鼠尾草 → 浅薄荷
+  { bg: '#d4a847', ink: '#1a1a1a', card: '#fdfaf0', dot: '#9a7820', paper: '#f4ecd8', tint: '#fbf2d2' }, // 芥黄 → 奶黄
+  { bg: '#3e4863', ink: '#f4ecd8', card: '#fdfaf0', dot: '#1d2335', paper: '#f4ecd8', tint: '#dbe0ef' }, // 深蓝 → 浅蓝灰
+  { bg: '#d68b94', ink: '#1a1a1a', card: '#fdfaf0', dot: '#a5616a', paper: '#f4ecd8', tint: '#fadce0' }, // 粉 → 浅腮红
+  { bg: '#7a93a8', ink: '#1a1a1a', card: '#fdfaf0', dot: '#465e74', paper: '#f4ecd8', tint: '#dbe7f0' }, // 灰蓝 → 浅天蓝
+  { bg: '#b59760', ink: '#1a1a1a', card: '#fdfaf0', dot: '#7a6535', paper: '#f4ecd8', tint: '#f1e7cc' }, // 麦褐 → 浅米
+  { bg: '#8a9a5b', ink: '#1a1a1a', card: '#fdfaf0', dot: '#5e6b3e', paper: '#f4ecd8', tint: '#e2e8c8' }, // 橄榄绿 → 浅橄榄
 ];
 
 function hashSlug(s: string): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
   return Math.abs(h);
+}
+
+/** 给外部（如 Home 卡片背景）用的 palette 查询 */
+export function paletteForSlug(slug: string): Palette {
+  return PALETTES[hashSlug(slug) % PALETTES.length];
 }
 
 /* ─────────────────────────────────────────────
