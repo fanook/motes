@@ -19,7 +19,7 @@ export const meta: MoteMeta = {
   date: '2026-05-24',
   tags: ['AI 入门', 'LLM', '成本'],
   summary:
-    '从 KV cache 到块级哈希， 把"为什么能省 90% 钱"的底层机制讲清楚。',
+    '从 KV cache 到块级哈希 —— "省 90% 钱"是怎么实现的。',
 };
 
 function Term({
@@ -316,10 +316,10 @@ export default function Mote() {
 
         <p className="pt-3"><strong>❌ 不开 caching：</strong></p>
         <div
-          className="p-3 rounded-sm space-y-1 text-sm sm:text-base"
+          className="p-3 rounded-sm space-y-1 text-sm sm:text-base tabular-nums"
           style={{
             backgroundColor: '#fee2e2',
-            fontFamily: 'ui-monospace, Consolas, monospace',
+            fontFamily: PEN,
             color: INK,
           }}
         >
@@ -330,10 +330,10 @@ export default function Mote() {
 
         <p className="pt-3"><strong>✅ 开 caching（5 分钟 TTL）：</strong></p>
         <div
-          className="p-3 rounded-sm space-y-1 text-sm sm:text-base"
+          className="p-3 rounded-sm space-y-1 text-sm sm:text-base tabular-nums"
           style={{
             backgroundColor: '#d1fae5',
-            fontFamily: 'ui-monospace, Consolas, monospace',
+            fontFamily: PEN,
             color: INK,
           }}
         >

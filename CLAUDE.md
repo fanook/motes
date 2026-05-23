@@ -63,6 +63,51 @@ changelog?: { date: string; note: string }[]
 
 新 mote 默认不写 changelog 字段， 让组件自然显示一条"创建"即可。
 
+## 知识 backlog（写文章时遇到的衍生话题）
+
+写某篇文章时， 经常会牵扯到其他可以单独成篇的概念 / 工具 / 论文。 **不要在原文里展开**， 记到下面这个 backlog， 后续单独写一篇。 这样：
+- 每篇 mote 保持聚焦
+- 知识图逐步织起来， 文章之间互相引用
+- 不会"写一篇带出十篇"陷入无边
+
+**当前 backlog**（按优先级， 越靠前越值得先写）：
+
+```
+[x] Context Window 深度版 → 2026-05-26-context-window.tsx
+[x] Attention 机制 → 2026-05-27-attention.tsx
+[x] Temperature / Top-p / Top-k → 2026-05-28-sampling.tsx
+[x] Hallucination → 2026-05-29-hallucination.tsx
+[x] RAG → 2026-05-30-rag.tsx
+[x] Vector DB → 2026-05-31-vector-db.tsx
+[x] Function Calling / Tool Use → 2026-06-01-function-calling.tsx
+[x] Chain of Thought → 2026-06-02-chain-of-thought.tsx
+[x] MCP → 2026-06-03-mcp.tsx
+[x] Pre-training / Fine-tuning / RAG 三选一 → 2026-06-04-train-vs-finetune-vs-rag.tsx
+[x] RLHF → 2026-06-05-rlhf.tsx
+[x] MoE 混合专家 → 2026-06-06-moe.tsx
+[x] Chunking 策略 → 2026-06-07-chunking.tsx
+[x] Rerank 重排 → 2026-06-08-rerank.tsx
+[x] Contrastive learning → 2026-06-09-contrastive-learning.tsx
+[x] BERT → 2026-06-10-bert.tsx
+```
+
+**新候选**（之前写文章时挖出的、 还没单独成篇）：
+```
+[ ] Agentic workflows / ReAct
+[ ] Constitutional AI（RLAIF 的具体实现）
+[ ] LoRA / QLoRA 微调技巧详解
+[ ] FlashAttention 工程实现
+[ ] BM25 经典关键词检索算法
+[ ] AI 产品成本结构 PM 视角全景
+[ ] Streaming / TTFT / Throughput 性能优化全景
+[ ] 选模型决策框架（Haiku / Sonnet / Opus / GPT-4o-mini 等）
+```
+
+**工作流**：
+- 写文章时遇到一个有信息量但偏离主题的概念， 用一句话总结 + 标"[详见: XX]"占位， 然后把 XX 加进上面这个列表
+- 写完一篇就把对应条目从 `[ ]` 改成 `[x]` + 加上文件链接
+- backlog 用得越来越短， 文章网络逐渐成形
+
 ## 写新 mote 的事实核查与引用（强制要求）
 
 不许凭记忆写。写 mote 之前 / 过程中，**必须用 `WebFetch` / `WebSearch` 实地读原始资料**，读完后用自己的话总结。
@@ -137,6 +182,24 @@ changelog?: { date: string; note: string }[]
 - 来源易变（价格、context 长度）→ 旁注"* 实际以官网为准"
 - 完全找不到原始来源 → **宁可不写也不要瞎编**
 
+## 写作风格（必须遵守）
+
+**🚫 不要用营销 / 夸大词**：避免"一篇看懂、 讲透、 秒懂、 完全搞懂、 一篇带你、 彻底、 保姆级、 深入浅出"这类内容农场常见词。 摘要里就直接列出文章涉及的主题点， 让读者自己判断；不要替读者"打包票"。
+
+✅ 好示例：`'BPE 算法、 自回归生成、 词表权衡、 真实定价、 上下文经济学。'`
+❌ 反例：`'一篇把 token 讲透。'`
+
+**🚫 尽量不要出现真实代码**：知识 mote 重点是讲清楚原理 / 概念， 不是教某门语言的 API。 一定要展示流程或数据结构时， **必须用伪代码**（语言无关）， 而不是某具体语言 / 某家 SDK 的真实调用。
+
+✅ 好示例：
+```
+v1 ← embed("一只可爱的猫")
+similarity(a, b) := a · b / (|a| × |b|)
+```
+❌ 反例：写一段可直接 copy 跑的 Python（含 `import openai` 之类）
+
+例外：当文章本身就是讲某个具体 API / 格式时（如 chat template 的 special tokens、 prompt 结构），可以保留少量真实样例； 但其他场景默认伪代码。
+
 ## 目标读者
 
 - **AI 产品经理 / 业务决策者**为主，兼顾"听过但说不清楚"的好奇心读者
@@ -206,6 +269,47 @@ changelog?: { date: string; note: string }[]
 - 使用 `Paper` 包裹（手写风）
 - 单一显示模式：彩色卡片纵向堆叠（每条不同色，由 slug hash 决定，固定可复现）
 - 右上角有手绘 **打乱按钮**（`ShuffleIcon`），点击随机打乱条目顺序
+
+## ✅ 写完 mote 必过的 checklist
+
+写完一篇 mote 后， **必须显式过一遍下面这张表**， 全部 ✓ 才能 commit / 告知用户完成。 不许跳过、 不许"默认应该没问题"。
+
+### A. 信息核查
+- [ ] 价格 / 模型规格 / 库版本：用 WebFetch 核过官方源？
+- [ ] 算法 / 概念：读了原论文 / 厂商 docs， 不是凭记忆？
+- [ ] 引用论文的作者、 年份、 venue 都正确？
+- [ ] 文末有"参考来源 / References"章节， 列全用到的源？
+- [ ] 引用格式：URL + accessed YYYY-MM-DD + 一句简短描述？
+- [ ] 易变信息（价格 / context 长度等）旁注"* 实际以官网为准"？
+- [ ] 完全找不到原始来源的内容 → 已删除， 不瞎编？
+
+### B. 写作风格
+- [ ] `meta.title` ≤ 10 汉字， 不带副标题？
+- [ ] 没有"一篇看懂 / 讲透 / 秒懂 / 彻底 / 保姆级" 等营销词？
+- [ ] `summary` 中性陈述， 不打包票、 不"带你"？
+- [ ] 代码块都用了**伪代码**（除非文章本身就是讲某 API 格式）？
+- [ ] 整体 tone 客观， 不浮夸？
+
+### C. 视觉 / 排版
+- [ ] 用了共用组件（Paper / Section / Changelog / RoughBox / ...）， 没在 mote 文件里重复定义？
+- [ ] 正文字号 `text-base sm:text-lg`， 标题 `text-xl sm:text-3xl`？
+- [ ] 行高 `leading-relaxed`（不要 `leading-loose`）， 段落间距 `space-y-2 sm:space-y-2.5`？
+- [ ] 移动端无横向溢出？（无固定 >320px 元素； 大块图用 FluidRoughBox / RoughBarChart）
+- [ ] 算式、 计算、 表达式块用 `PEN` 字体 + `tabular-nums`， 不用 `ui-monospace`？
+- [ ] 章节标题都通过 `Section` 组件渲染（自带下划线）？
+- [ ] 流程图横排：移动端 `flex-col sm:flex-row` + 向下箭头？
+
+### D. 知识连贯
+- [ ] 写时遇到的衍生话题， 已加到 CLAUDE.md "知识 backlog"？
+- [ ] 跟已有 mote 重叠的概念， 用一句话点 + 链接， 不重复展开？
+
+### E. 构建 / 体验
+- [ ] `npm run build` 通过， 无 TS / ESLint 报错？
+- [ ] dev server 刷新看过实际效果（至少桌面 + iPhone 14 Pro Max 430px）？
+
+---
+
+**操作约定**：写完每篇 mote， 把上面 checklist **逐条用文字回答**给用户看（不是默默心里过），让用户也能监督。 全部过了再说"已完成"。
 
 ## Git 提交规范
 
