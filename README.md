@@ -2,6 +2,8 @@
 
 每天用 AI 整理一些细碎的知识。每条知识 = 一个独立的 React 组件，可任意排版与交互。
 
+🌐 在线访问：<https://motes.yifanook.com/>
+
 ## 快速开始
 
 ```bash

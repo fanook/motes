@@ -10,10 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/caveat": "^5.2.8",
+    "@fontsource/kalam": "^5.2.8",
+    "@fontsource/long-cang": "^5.2.8",
+    "@fontsource/ma-shan-zheng": "^5.2.9",
     "@tailwindcss/vite": "^4.3.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.15.1",
+    "roughjs": "^4.6.6",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {

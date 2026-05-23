@@ -1,19 +1,38 @@
 @import "tailwindcss";
 
+@theme {
+  --font-hand: 'Caveat', 'Ma Shan Zheng', cursive;
+  --font-hand-pen: 'Kalam', 'Ma Shan Zheng', cursive;
+  --font-hand-cjk: 'Long Cang', 'Ma Shan Zheng', cursive;
+}
+
 html, body, #root {
   min-height: 100vh;
+}
+
+html, body {
+  overflow-x: clip;
 }
 
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: #fafaf9;
+  /* 书桌色：比纸张深 2~3 度的暖米色 */
+  background-color: #e3d8c2;
+  background-image:
+    radial-gradient(rgba(120, 90, 50, 0.05) 1px, transparent 1px),
+    radial-gradient(rgba(120, 90, 50, 0.04) 1px, transparent 1px);
+  background-size: 22px 22px, 31px 31px;
+  background-position: 0 0, 11px 11px;
   color: #1c1917;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: #0c0a09;
+    background-color: #2a221a;
+    background-image:
+      radial-gradient(rgba(255, 240, 200, 0.04) 1px, transparent 1px),
+      radial-gradient(rgba(255, 240, 200, 0.03) 1px, transparent 1px);
     color: #f5f5f4;
   }
 }

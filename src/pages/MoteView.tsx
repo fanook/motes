@@ -1,6 +1,7 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { findMote } from '../lib/motes';
+import { HAND, PEN, INK_SEPIA } from '../components/handwriting';
 
 export default function MoteView() {
   const { slug = '' } = useParams();
@@ -16,36 +17,65 @@ export default function MoteView() {
 
   if (!entry || !LazyMote) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-12">
-        <Link to="/" className="text-sm text-stone-400 hover:text-stone-600">
-          ← 返回
-        </Link>
-        <p className="mt-8 text-stone-500">没找到这条 mote。</p>
+      <div className="mx-auto max-w-3xl px-3 sm:px-6 py-6 sm:py-12">
+        <BackLink />
+        <p
+          className="mt-8 text-stone-500 text-lg"
+          style={{ fontFamily: PEN }}
+        >
+          没找到这条 mote。
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <Link to="/" className="text-sm text-stone-400 hover:text-stone-600">
-        ← 返回
-      </Link>
-      <div className="mt-4 mb-8 flex items-baseline gap-3">
-        <time className="text-sm text-stone-400 tabular-nums">
-          {entry.meta.date}
-        </time>
-        {entry.meta.tags?.map((t) => (
-          <span
-            key={t}
-            className="text-xs text-stone-400 rounded-full border border-stone-200 dark:border-stone-700 px-2 py-0.5"
+    <div className="mx-auto max-w-3xl px-3 sm:px-6 py-6 sm:py-12">
+      <div className="mb-3 sm:mb-4 flex items-baseline justify-between gap-3 flex-wrap pl-1">
+        <BackLink />
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <time
+            className="text-base sm:text-lg text-stone-500 tabular-nums"
+            style={{ fontFamily: PEN }}
           >
-            {t}
-          </span>
-        ))}
+            {entry.meta.date}
+          </time>
+          {entry.meta.tags?.map((t) => (
+            <span
+              key={t}
+              className="text-base text-stone-500"
+              style={{ fontFamily: PEN }}
+            >
+              · {t}
+            </span>
+          ))}
+        </div>
       </div>
-      <Suspense fallback={<p className="text-stone-400">加载中…</p>}>
+      <Suspense
+        fallback={
+          <p
+            className="text-stone-400 text-lg"
+            style={{ fontFamily: PEN }}
+          >
+            加载中…
+          </p>
+        }
+      >
         <LazyMote />
       </Suspense>
     </div>
+  );
+}
+
+function BackLink() {
+  return (
+    <Link
+      to="/"
+      className="inline-flex items-baseline gap-1 hover:opacity-70 transition-opacity"
+      style={{ fontFamily: HAND, color: INK_SEPIA }}
+    >
+      <span className="text-2xl leading-none">←</span>
+      <span className="text-xl sm:text-2xl">返回</span>
+    </Link>
   );
 }

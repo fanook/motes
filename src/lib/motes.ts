@@ -1,10 +1,16 @@
 import type { ComponentType } from 'react';
 
+export type ChangelogEntry = {
+  date: string; // YYYY-MM-DD
+  note: string;
+};
+
 export type MoteMeta = {
   title: string;
-  date: string;
+  date: string; // 创建日期
   tags?: string[];
   summary?: string;
+  changelog?: ChangelogEntry[]; // 变更历史，按时间倒序（最新在前）
 };
 
 export type MoteModule = {
