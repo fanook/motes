@@ -397,9 +397,18 @@ code, pre, kbd, samp, tt {
 2. navigate `http://localhost:5174/cover/<slug>`
 3. `browser_take_screenshot` 用 `target="#cover-art-page"`， 存到 `motes/public/screenshots/<slug>-cover.png`
 
-### 2. 准备 body 图（2x 高清， 1440 宽 × N 高）
+### 2. 准备 body 图（2x 高清， ~800 宽 × N 高）
 
-1. resize 浏览器到 900×1200
+**视口必须 430×1200**，不要用桌面宽度（900 / 1300 等）。 原因：
+- 公众号文章在手机上显示宽度约 **390 CSS px**
+- 截图视口 = 430 → Paper 内容渲染宽 ~ 400 CSS px
+- 2x 截图 = ~ 800 wide native PNG
+- 公众号 1:1 显示， 字号跟用户直接打开网站手机端看到的一致
+- 如果用 900 视口截， 图被压缩 0.54x， 文字在手机上看会偏小一半（用户实测反馈）
+
+步骤：
+
+1. resize 浏览器到 **430×1200**
 2. navigate `http://localhost:5174/m/<slug>`
 3. **先查 Paper 总高**：
    ```js
@@ -420,6 +429,8 @@ code, pre, kbd, samp, tt {
 7. `cp` 到 `motes/public/screenshots/<slug>-body.png`（如果拆图就 `-body-1.png` / `-body-2.png`）
 
 ### 2.5 长文章 split（仅 total ≥ 8000 px 时）
+
+注：430 视口下 Paper 变窄、 wrap 变多， 同样的文章会比 900 视口更高。 长文（如 Token、 RAG）经常需要拆 3~4 段。
 
 Paper 结构：`paper.children[0]` 是 cover SVG， `paper.children[1]` 是内容容器， `paper.children[1].children[...]` 是各 Section。
 
