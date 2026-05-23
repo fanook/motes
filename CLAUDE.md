@@ -387,7 +387,7 @@ code, pre, kbd, samp, tt {
 ### 0. 前置条件（一次性， 不必每次确认）
 
 - `wenyan-mcp` 已配在 Claude Code 的 `~/.claude.json` （project: `/Users/huhufan/work/dev`）
-- 凭证已注入：`WECHAT_APP_ID=REDACTED_APPID`、`WECHAT_APP_SECRET=...`
+- 凭证已经通过 `claude mcp add wenyan-mcp -e WECHAT_APP_ID=... -e WECHAT_APP_SECRET=...` 注入到本机 `~/.claude.json`， 仓库里**不能**出现明文 AppID / AppSecret
 - 公众号开发者平台 IP 白名单里有用户电脑公网 IP（每次换网络要重新加， 错误码 40164 就是没加）
 - 本地 dev server 在跑：`http://localhost:5174/`（如果没在跑， 用 `cd /Users/huhufan/work/dev/motes && npm run dev &`）
 
