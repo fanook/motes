@@ -14,6 +14,12 @@ html, body {
   overflow-x: clip;
 }
 
+/* 全站强制手写字体： <code>/<pre>/<kbd>/<samp> 这些 HTML 默认是 monospace，
+   跟我们的手写风格冲突， 一律覆盖为 PEN（Kalam + Ma Shan Zheng） */
+code, pre, kbd, samp, tt {
+  font-family: var(--font-hand-pen) !important;
+}
+
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

@@ -259,6 +259,14 @@ similarity(a, b) := a · b / (|a| × |b|)
 ✅ `style={{ fontFamily: 'var(--font-hand-pen)' }}` 或 `style={{ fontFamily: PEN }}`
 ❌ `style={{ fontFamily: 'ui-monospace, Consolas, monospace' }}`
 
+**也要注意 HTML 默认字体**：`<code>` / `<pre>` / `<kbd>` / `<samp>` 这几个标签浏览器默认就是 monospace。 这些已经被 `src/index.css` 里全局覆盖为 PEN：
+```css
+code, pre, kbd, samp, tt {
+  font-family: var(--font-hand-pen) !important;
+}
+```
+**不要删这条规则**。 如果某条 mote 想恢复 monospace（极不推荐）， 需要 inline style 显式覆盖。
+
 之前 CLAUDE.md 写过的"chat template 等可保留 monospace 例外"已**取消**， 不要再加回来。
 
 ## 目标读者
