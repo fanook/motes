@@ -397,20 +397,40 @@ code, pre, kbd, samp, tt {
 2. navigate `http://localhost:5174/cover/<slug>`
 3. `browser_take_screenshot` 用 `target="#cover-art-page"`， 存到 `motes/public/screenshots/<slug>-cover.png`
 
-### 2. 准备 body 图（手写纸版本， 1440×多高 都行）
+### 2. 准备 body 图（2x 高清， 1440 宽 × N 高）
 
 1. resize 浏览器到 900×1200
 2. navigate `http://localhost:5174/m/<slug>`
-3. `browser_evaluate` 触发下载按钮：
+3. **先查 Paper 总高**：
    ```js
    () => document.fonts.ready.then(() => {
-     const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('下载'));
-     btn?.click();
-     return 'clicked';
+     const paper = document.getElementById('mote-paper');
+     return { total: paper.offsetHeight };
    })
    ```
-4. Playwright 自动捕获下载到 `/Users/huhufan/work/dev/.playwright-mcp/<slug>.png`
-5. `cp` 到 `motes/public/screenshots/<slug>-body.png`
+4. 如果 `total < 8000` (CSS px， 2x 后 < 16000) → 直接触发下载按钮：
+   ```js
+   () => {
+     const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('下载'));
+     btn?.click();
+   }
+   ```
+5. 如果 `total ≥ 8000` → **必须拆图**， 否则会撞 Chrome canvas 16384 高度上限被截断（html-to-image 用的 canvas 渲染）。 拆图步骤见下方"长文章 split"
+6. Playwright 自动捕获下载到 `/Users/huhufan/work/dev/.playwright-mcp/<slug>.png`
+7. `cp` 到 `motes/public/screenshots/<slug>-body.png`（如果拆图就 `-body-1.png` / `-body-2.png`）
+
+### 2.5 长文章 split（仅 total ≥ 8000 px 时）
+
+Paper 结构：`paper.children[0]` 是 cover SVG， `paper.children[1]` 是内容容器， `paper.children[1].children[...]` 是各 Section。
+
+**逻辑**：先查每个 Section 高度， 累加分组（每组 < 4500 CSS px， 2x 后 < 9000）， 然后 N 次循环：
+- 隐藏不属于本组的 Section（`display: none`）
+- 第 2 张及以后还要隐藏 cover（避免重复）
+- 触发下载按钮
+- 等下载完， `cp` 到 `-body-N.png`
+- 恢复 display
+
+参考 Token 那次的实操（content 8663 CSS px， 拆 10/8 节两组， 出 1440×10910 + 1440×8080 两张图）。
 
 ### 3. 调 wenyan-mcp 发草稿
 
