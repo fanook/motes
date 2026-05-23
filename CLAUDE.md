@@ -380,6 +380,71 @@ code, pre, kbd, samp, tt {
 
 **操作约定**：写完每篇 mote， 把上面 checklist **逐条用文字回答**给用户看（不是默默心里过），让用户也能监督。 全部过了再说"已完成"。
 
+## 发布到公众号草稿（skill 操作手册）
+
+下次用户说"发到公众号 / 上传草稿 / 公众号草稿"时， **按这套流程操作， 不要凭印象重新探索**。
+
+### 0. 前置条件（一次性， 不必每次确认）
+
+- `wenyan-mcp` 已配在 Claude Code 的 `~/.claude.json` （project: `/Users/huhufan/work/dev`）
+- 凭证已注入：`WECHAT_APP_ID=REDACTED_APPID`、`WECHAT_APP_SECRET=...`
+- 公众号开发者平台 IP 白名单里有用户电脑公网 IP（每次换网络要重新加， 错误码 40164 就是没加）
+- 本地 dev server 在跑：`http://localhost:5174/`（如果没在跑， 用 `cd /Users/huhufan/work/dev/motes && npm run dev &`）
+
+### 1. 准备 cover 图（1200×1200 方形， WeChat 列表预览用）
+
+1. Playwright 调浏览器到 1300×1300 视口
+2. navigate `http://localhost:5174/cover/<slug>`
+3. `browser_take_screenshot` 用 `target="#cover-art-page"`， 存到 `motes/public/screenshots/<slug>-cover.png`
+
+### 2. 准备 body 图（手写纸版本， 1440×多高 都行）
+
+1. resize 浏览器到 900×1200
+2. navigate `http://localhost:5174/m/<slug>`
+3. `browser_evaluate` 触发下载按钮：
+   ```js
+   () => document.fonts.ready.then(() => {
+     const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('下载'));
+     btn?.click();
+     return 'clicked';
+   })
+   ```
+4. Playwright 自动捕获下载到 `/Users/huhufan/work/dev/.playwright-mcp/<slug>.png`
+5. `cp` 到 `motes/public/screenshots/<slug>-body.png`
+
+### 3. 调 wenyan-mcp 发草稿
+
+```yaml
+tool: mcp__wenyan-mcp__publish_article
+theme_id: default
+content: |
+  ---
+  title: <短标题， ≤ 10 汉字>
+  author: yifanook
+  cover: /Users/huhufan/work/dev/motes/public/screenshots/<slug>-cover.png
+  ---
+
+  ![](/Users/huhufan/work/dev/motes/public/screenshots/<slug>-body.png)
+```
+
+**不要加额外文字 / 链接 / AI 标注**到 markdown 里 —— 用户明确要求过， 草稿只有图片。
+
+### 4. 验证
+
+返回 `Your article was successfully published to '公众号草稿箱'` + media ID → 成功
+返回 `40164` → IP 白名单问题
+返回 `40113` → 图片格式问题（必须 PNG/JPG/GIF， 不能 SVG）
+
+### 批量发布所有 mote
+
+需要做 20 篇时， 一篇一篇按上面 1~3 步走， 不要并行（Playwright 串行更可靠）。 写一个 todo list 用 TaskCreate 跟踪进度。
+
+### 易变细节注意
+
+- 文章一旦在网站上有改动（特别是 cover 颜色配色规则、 字体、 排版）→ 之前发的草稿过时， 需要重新跑流程覆盖
+- 草稿 media_id 没法用 wenyan-mcp 删除， 重复发就行， 用户在公众号后台手工清理旧的
+- 发布前先确认 dev server 跑的是最新代码（如果刚改过文件， npm run dev 的 HMR 应已生效； 怀疑就 kill + 重启）
+
 ## Git 提交规范
 
 - **commit message 简洁为主**，一行能讲清就一行，不写多段详述。
