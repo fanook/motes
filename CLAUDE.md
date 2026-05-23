@@ -108,6 +108,62 @@ changelog?: { date: string; note: string }[]
 - 写完一篇就把对应条目从 `[ ]` 改成 `[x]` + 加上文件链接
 - backlog 用得越来越短， 文章网络逐渐成形
 
+## 封面图系统（每篇 mote 一张专属 cover）
+
+每篇 mote 都有一张程序化生成的封面图， 风格类似 Anthropic 博客的"编辑插画"。 用于：
+- 首页列表卡片左侧缩略图（80px / 128px）
+- 文章详情页顶部 banner（嵌在 Paper 内， 跟正文是一个整体）
+- 公众号封面图（通过 `/cover/:slug` 路由 + Playwright + 网站「⤓ 下载图片」按钮渲染 PNG）
+
+**核心组件**：`src/components/cover-art.tsx`
+- `<CoverArt slug={slug} />` 接受 slug， 全自动生成
+- 1200×1200 viewBox， **正方形**， SVG 矢量， 浏览器内运行时渲染
+- 调色板 + halftone variant + 符号 全部由 slug hash 决定， 同一 slug 永远生成同款
+
+**视觉规则**（动 cover-art.tsx 时严格遵守）：
+- ✅ **单一构图**， 不分两块、 不做 split panel
+- ✅ **符号始终居中**（`translate(250, 250) scale(1.4)`， 中心点 600,600）
+- ✅ **色块铺满整个 1200×1200**， 不留奶油纸边
+- ✅ Halftone 三种 variant：`0` 下半 / `1` 无 / `2` 上半（由 slug hash 决定）
+- ❌ **不要曲线**（之前画过墨色波纹， 已删， 不要加回）
+- ❌ **不要 grid card overlay**（之前的 variant 1 视觉中心偏， 已删）
+
+**怎么给新 mote 加专属符号**：
+1. 在 `cover-art.tsx` 写一个 `SymbolDrawer` 函数：
+   ```ts
+   const drawXxx: SymbolDrawer = (g, rc, o) => {
+     // 在 0~500 的局部坐标里画， 用 rc.rectangle / rc.circle / rc.line / rc.curve / rc.ellipse
+     // 共享 helper： fillRect, fillCircle
+     // 颜色用 o.stroke (黑墨色) 和 o.fill (奶油色)
+     // 随机种子 o.seed + 偏移
+   };
+   ```
+2. 加到 `SYMBOL_REGISTRY` 数组里：
+   ```ts
+   { test: (s) => s.includes('your-slug'), drawer: drawXxx },
+   ```
+3. 写完无须改其他文件 —— `<CoverArt>` 自动通过 slug 匹配。
+4. 通过 `http://localhost:5174/cover/<slug>` 单独预览。
+
+**符号设计原则**（保持视觉统一）：
+- 主图占 500×500 局部坐标的中心区域
+- 用 1~2 个核心几何形状（方块 / 圆 / 椭圆 / 线）
+- 暗示文章主题， 但**抽象**， 不要图标级具象
+- 用 `solidStroke: true` 让某些点变实心来形成视觉重心
+- roughness 1.3~1.6， strokeWidth 3~5， 太细看不清、 太粗压扁
+
+**Paper 自动嵌入封面**：
+- `Paper` 组件读 `MoteSlugContext`， 如果有 slug 就在内容顶部渲染 `<CoverArt>`
+- `MoteView` 通过 `<MoteSlugContext.Provider>` 包住 `<LazyMote>`
+- 个别 mote 想不要封面 → 不需要改 mote 文件， 在 MoteView 里加例外列表即可
+
+**列表卡片排版规则**（`Home.tsx` ListView）：
+- 横向 flex： 左 cover（`w-20 sm:w-32`， 80/128px 方形）+ 右内容
+- 内容区 `justify-between`： 标题顶上、 描述顶下
+- 描述 `line-clamp-2 sm:line-clamp-3`
+- **不显示日期 / 标签**（用户体验更清爽）
+- cover 用 `self-stretch` 跟卡片同高
+
 ## 写新 mote 的事实核查与引用（强制要求）
 
 不许凭记忆写。写 mote 之前 / 过程中，**必须用 `WebFetch` / `WebSearch` 实地读原始资料**，读完后用自己的话总结。

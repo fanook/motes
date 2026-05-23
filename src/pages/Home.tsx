@@ -11,6 +11,7 @@ import {
   RoughUnderline,
   ShuffleIcon,
 } from '../components/handwriting';
+import { CoverArt } from '../components/cover-art';
 
 const cardColors = [
   '#fef3c7',
@@ -125,40 +126,28 @@ function ColorListView({ motes }: { motes: MoteEntry[] }) {
               style={{ transform: `rotate(${tilt}deg)` }}
             >
               <div
-                className="px-3 py-2.5 sm:p-5 rounded-sm shadow-md hover:shadow-lg transition-shadow"
+                className="rounded-sm shadow-md hover:shadow-lg transition-shadow overflow-hidden flex flex-row items-stretch"
                 style={{ backgroundColor: bg }}
               >
-                <div className="flex items-baseline gap-1.5 flex-wrap">
-                  <time
-                    className="text-[11px] sm:text-sm text-stone-500 tabular-nums"
-                    style={{ fontFamily: PEN }}
+                <div className="w-20 sm:w-32 shrink-0 self-stretch">
+                  <CoverArt slug={slug} />
+                </div>
+                <div className="px-3 py-2.5 sm:p-4 flex-1 min-w-0 flex flex-col justify-between">
+                  <h2
+                    className="text-base sm:text-2xl leading-tight"
+                    style={{ fontFamily: HAND, color: INK }}
                   >
-                    {meta.date}
-                  </time>
-                  {meta.tags?.map((t) => (
-                    <span
-                      key={t}
-                      className="text-[11px] sm:text-xs text-stone-500"
+                    {meta.title}
+                  </h2>
+                  {meta.summary && (
+                    <p
+                      className="text-xs sm:text-sm text-stone-600 leading-snug line-clamp-2 sm:line-clamp-3"
                       style={{ fontFamily: PEN }}
                     >
-                      · {t}
-                    </span>
-                  ))}
+                      {meta.summary}
+                    </p>
+                  )}
                 </div>
-                <h2
-                  className="text-base sm:text-3xl mt-0.5 leading-tight"
-                  style={{ fontFamily: HAND, color: INK }}
-                >
-                  {meta.title}
-                </h2>
-                {meta.summary && (
-                  <p
-                    className="mt-0.5 sm:mt-1 text-xs sm:text-base text-stone-600 leading-snug"
-                    style={{ fontFamily: PEN }}
-                  >
-                    {meta.summary}
-                  </p>
-                )}
               </div>
             </Link>
           </li>

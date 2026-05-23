@@ -1,43 +1,28 @@
 import { useEffect, useRef } from 'react';
 import rough from 'roughjs';
+import type { RoughSVG } from 'roughjs/bin/svg';
 
-/* ---------- 调色板 ---------- */
+/* ─────────────────────────────────────────────
+   Palettes
+   ───────────────────────────────────────────── */
 type Palette = {
-  bg: string; // 外层奶油纸色
-  panelA: string; // 左侧色块
-  panelB: string; // 右侧色块
-  ink: string; // 黑墨线
-  card: string; // 白方块（grid card）
+  bg: string; // 主背景色块
+  ink: string; // 主笔触墨色
+  card: string; // 符号填色 / 卡片白
   dot: string; // halftone 圆点色
+  paper: string; // 外层 paper border
 };
 
-const PALETTES: Record<string, Palette> = {
-  // 经典 Anthropic 配色： 赤陶 + 鼠尾草
-  terracotta: {
-    bg: '#f4ecd8',
-    panelA: '#c47350',
-    panelB: '#a4b596',
-    ink: '#1a1a1a',
-    card: '#fdfaf0',
-    dot: '#7b8e6f',
-  },
-  mustard: {
-    bg: '#f4ecd8',
-    panelA: '#d4a847',
-    panelB: '#3e4863',
-    ink: '#1a1a1a',
-    card: '#fdfaf0',
-    dot: '#2c3450',
-  },
-  pink: {
-    bg: '#f4ecd8',
-    panelA: '#d68b94',
-    panelB: '#8a9a5b',
-    ink: '#1a1a1a',
-    card: '#fdfaf0',
-    dot: '#5e6b3e',
-  },
-};
+const PALETTES: Palette[] = [
+  { bg: '#c47350', ink: '#1a1a1a', card: '#fdfaf0', dot: '#8b4a30', paper: '#f4ecd8' },
+  { bg: '#a4b596', ink: '#1a1a1a', card: '#fdfaf0', dot: '#5f7050', paper: '#f4ecd8' },
+  { bg: '#d4a847', ink: '#1a1a1a', card: '#fdfaf0', dot: '#9a7820', paper: '#f4ecd8' },
+  { bg: '#3e4863', ink: '#f4ecd8', card: '#fdfaf0', dot: '#1d2335', paper: '#f4ecd8' },
+  { bg: '#d68b94', ink: '#1a1a1a', card: '#fdfaf0', dot: '#a5616a', paper: '#f4ecd8' },
+  { bg: '#7a93a8', ink: '#1a1a1a', card: '#fdfaf0', dot: '#465e74', paper: '#f4ecd8' },
+  { bg: '#b59760', ink: '#1a1a1a', card: '#fdfaf0', dot: '#7a6535', paper: '#f4ecd8' },
+  { bg: '#8a9a5b', ink: '#1a1a1a', card: '#fdfaf0', dot: '#5e6b3e', paper: '#f4ecd8' },
+];
 
 function hashSlug(s: string): number {
   let h = 0;
@@ -45,325 +30,866 @@ function hashSlug(s: string): number {
   return Math.abs(h);
 }
 
-function paletteForSlug(slug: string): Palette {
-  const keys = Object.keys(PALETTES);
-  return PALETTES[keys[hashSlug(slug) % keys.length]];
+/* ─────────────────────────────────────────────
+   Symbol drawers
+   每个 drawer 在 (0, 0) ~ (500, 500) 的局部坐标里画
+   ───────────────────────────────────────────── */
+type DrawOpts = { stroke: string; fill: string; seed: number };
+type SymbolDrawer = (g: SVGGElement, rc: RoughSVG, o: DrawOpts) => void;
+
+// 共享 helper
+function fillRect(
+  rc: RoughSVG,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  o: DrawOpts,
+  extra: { stroke?: number; rough?: number; seedOffset?: number } = {}
+) {
+  return rc.rectangle(x, y, w, h, {
+    stroke: o.stroke,
+    strokeWidth: extra.stroke ?? 4,
+    roughness: extra.rough ?? 1.4,
+    fill: o.fill,
+    fillStyle: 'solid',
+    seed: o.seed + (extra.seedOffset ?? 0),
+  });
+}
+function fillCircle(
+  rc: RoughSVG,
+  cx: number,
+  cy: number,
+  r: number,
+  o: DrawOpts,
+  extra: { stroke?: number; rough?: number; seedOffset?: number; solidStroke?: boolean } = {}
+) {
+  return rc.circle(cx, cy, r * 2, {
+    stroke: o.stroke,
+    strokeWidth: extra.stroke ?? 3,
+    roughness: extra.rough ?? 1.3,
+    fill: extra.solidStroke ? o.stroke : o.fill,
+    fillStyle: 'solid',
+    seed: o.seed + (extra.seedOffset ?? 0),
+  });
 }
 
-/* ---------- 主组件 ---------- */
-export function CoverArt({ slug, symbol }: { slug: string; symbol?: string }) {
+/* —— 1. Welcome（笔记 + 散落概念） —— */
+const drawNotebook: SymbolDrawer = (g, rc, o) => {
+  // 中央笔记本
+  const noteG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  noteG.setAttribute('transform', 'translate(150, 110) rotate(-4 100 130)');
+  noteG.appendChild(fillRect(rc, 0, 0, 200, 260, o));
+  [40, 90, 140].forEach((y, i) => {
+    const w = i === 1 ? 130 : 110;
+    noteG.appendChild(
+      rc.line(30, y, 30 + w, y, {
+        stroke: o.stroke,
+        strokeWidth: 3,
+        roughness: 1.6,
+        seed: o.seed + 10 + i,
+      })
+    );
+  });
+  g.appendChild(noteG);
+  // 周围 4 个概念碎片 + 连接线
+  [
+    [60, 70, 22],
+    [430, 100, 18],
+    [50, 400, 24],
+    [440, 380, 18],
+  ].forEach(([cx, cy, r], i) => {
+    g.appendChild(
+      rc.line(cx, cy, 250, 240, {
+        stroke: o.stroke,
+        strokeWidth: 1.5,
+        roughness: 1.3,
+        seed: o.seed + 200 + i,
+      })
+    );
+    g.appendChild(fillCircle(rc, cx, cy, r, o, { seedOffset: 300 + i }));
+  });
+};
+
+/* —— 2. Token（被切碎的方块） —— */
+const drawBrokenBlocks: SymbolDrawer = (g, rc, o) => {
+  // 一个长长的方块，被几道虚线切断
+  // 切出四段不同长度的小方块
+  const segments = [
+    { x: 40, w: 90 },
+    { x: 140, w: 70 },
+    { x: 220, w: 130 },
+    { x: 360, w: 90 },
+  ];
+  segments.forEach((s, i) => {
+    g.appendChild(fillRect(rc, s.x, 200, s.w, 100, o, { seedOffset: i * 7 }));
+  });
+  // 切割虚线
+  [130, 215, 355].forEach((x, i) => {
+    for (let y = 170; y < 340; y += 16) {
+      g.appendChild(
+        rc.line(x, y, x, y + 8, {
+          stroke: o.stroke,
+          strokeWidth: 2,
+          roughness: 0.8,
+          seed: o.seed + 500 + i * 30 + y,
+        })
+      );
+    }
+  });
+};
+
+/* —— 3. Prompt Caching（嵌套盒子 / 缓存层） —— */
+const drawCacheLayers: SymbolDrawer = (g, rc, o) => {
+  // 三层嵌套的圆角矩形， 模拟缓存层级
+  [
+    { x: 50, y: 90, w: 400, h: 320 },
+    { x: 110, y: 130, w: 280, h: 240 },
+    { x: 170, y: 170, w: 160, h: 160 },
+  ].forEach((b, i) => {
+    g.appendChild(fillRect(rc, b.x, b.y, b.w, b.h, o, { seedOffset: i * 7 }));
+  });
+  // 中心一个实心点
+  g.appendChild(fillCircle(rc, 250, 250, 20, o, { seedOffset: 90, solidStroke: true }));
+  // 几个箭头指向中心（reuse 的暗示）
+  [
+    [30, 50, 200, 200],
+    [470, 60, 300, 200],
+    [30, 450, 200, 300],
+  ].forEach(([x1, y1, x2, y2], i) => {
+    g.appendChild(
+      rc.line(x1, y1, x2, y2, {
+        stroke: o.stroke,
+        strokeWidth: 2.5,
+        roughness: 1.3,
+        seed: o.seed + 700 + i,
+      })
+    );
+  });
+};
+
+/* —— 4. Embedding（点云聚集） —— */
+const drawPointCloud: SymbolDrawer = (g, rc, o) => {
+  // 三个聚集的点群， 不同位置不同大小
+  const clusters = [
+    { cx: 150, cy: 150, n: 6, r: 60, dot: 14 },
+    { cx: 360, cy: 180, n: 5, r: 50, dot: 12 },
+    { cx: 250, cy: 360, n: 7, r: 70, dot: 13 },
+  ];
+  clusters.forEach((cl, ci) => {
+    for (let i = 0; i < cl.n; i++) {
+      const angle = (i / cl.n) * Math.PI * 2 + (o.seed % 100) / 100;
+      const dist = (((o.seed + i * 7) % 100) / 100) * cl.r;
+      const x = cl.cx + Math.cos(angle) * dist;
+      const y = cl.cy + Math.sin(angle) * dist;
+      g.appendChild(
+        fillCircle(rc, x, y, cl.dot, o, {
+          seedOffset: ci * 30 + i,
+          solidStroke: true,
+        })
+      );
+    }
+  });
+};
+
+/* —— 5. Context Window（开口大括号， 框住一些点） —— */
+const drawWindowFrame: SymbolDrawer = (g, rc, o) => {
+  // 一个粗描边的大矩形， 框住内部的内容
+  g.appendChild(fillRect(rc, 60, 100, 380, 300, o, { stroke: 6 }));
+  // 框内散落的小方块（代表 token）
+  const tokens = [
+    [110, 180, 70, 30],
+    [200, 170, 100, 30],
+    [320, 190, 60, 30],
+    [110, 240, 90, 30],
+    [220, 250, 130, 30],
+    [110, 310, 60, 30],
+    [190, 320, 80, 30],
+    [290, 310, 100, 30],
+  ];
+  tokens.forEach((t, i) => {
+    g.appendChild(
+      fillRect(rc, t[0], t[1], t[2], t[3], o, {
+        stroke: 2,
+        seedOffset: 100 + i,
+      })
+    );
+  });
+};
+
+/* —— 6. Attention（中心节点辐射） —— */
+const drawRadiation: SymbolDrawer = (g, rc, o) => {
+  const cx = 250;
+  const cy = 250;
+  // 6 个外围节点 + 连线
+  const n = 6;
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + Math.cos(angle) * 180;
+    const y = cy + Math.sin(angle) * 180;
+    // 连线粗细变化暗示注意力权重不同
+    const strokeW = 2 + ((o.seed + i) % 4);
+    g.appendChild(
+      rc.line(cx, cy, x, y, {
+        stroke: o.stroke,
+        strokeWidth: strokeW,
+        roughness: 1.3,
+        seed: o.seed + 50 + i,
+      })
+    );
+    g.appendChild(fillCircle(rc, x, y, 22, o, { seedOffset: 100 + i }));
+  }
+  // 中心实心节点
+  g.appendChild(fillCircle(rc, cx, cy, 38, o, { solidStroke: true, seedOffset: 999 }));
+};
+
+/* —— 7. RAG（书 + 放大镜） —— */
+const drawBookSearch: SymbolDrawer = (g, rc, o) => {
+  // 书： 长方形 + 中间线（书脊）
+  g.appendChild(fillRect(rc, 80, 130, 280, 220, o));
+  g.appendChild(
+    rc.line(220, 130, 220, 350, {
+      stroke: o.stroke,
+      strokeWidth: 3,
+      roughness: 1.4,
+      seed: o.seed + 30,
+    })
+  );
+  // 书页上几条线
+  [180, 220, 260].forEach((y, i) => {
+    g.appendChild(
+      rc.line(110, y, 200, y, {
+        stroke: o.stroke,
+        strokeWidth: 2,
+        roughness: 1.5,
+        seed: o.seed + 40 + i,
+      })
+    );
+  });
+  // 放大镜： 大圆 + 把手
+  g.appendChild(fillCircle(rc, 360, 380, 60, o, { stroke: 5 }));
+  g.appendChild(
+    rc.line(400, 420, 460, 470, {
+      stroke: o.stroke,
+      strokeWidth: 8,
+      roughness: 1.2,
+      seed: o.seed + 80,
+    })
+  );
+};
+
+/* —— 8. Vector DB（3D 网格 + 点） —— */
+const drawVectorGrid: SymbolDrawer = (g, rc, o) => {
+  // 一个看起来"立体"的网格平面（菱形）
+  // 4 角:
+  const corners = [
+    [80, 200],
+    [250, 130],
+    [420, 200],
+    [250, 330],
+  ];
+  // 描边
+  corners.forEach((p, i) => {
+    const next = corners[(i + 1) % corners.length];
+    g.appendChild(
+      rc.line(p[0], p[1], next[0], next[1], {
+        stroke: o.stroke,
+        strokeWidth: 4,
+        roughness: 1.3,
+        seed: o.seed + i,
+      })
+    );
+  });
+  // 内部网格线
+  for (let i = 1; i < 5; i++) {
+    const t = i / 5;
+    const x1 = 80 + (250 - 80) * t;
+    const y1 = 200 + (130 - 200) * t;
+    const x2 = 250 + (420 - 250) * t;
+    const y2 = 330 + (200 - 330) * t;
+    g.appendChild(
+      rc.line(x1, y1, x2, y2, {
+        stroke: o.stroke,
+        strokeWidth: 1.5,
+        roughness: 1,
+        seed: o.seed + 100 + i,
+      })
+    );
+    const x1b = 80 + (250 - 80) * t;
+    const y1b = 200 + (330 - 200) * t;
+    const x2b = 250 + (420 - 250) * t;
+    const y2b = 130 + (200 - 130) * t;
+    g.appendChild(
+      rc.line(x1b, y1b, x2b, y2b, {
+        stroke: o.stroke,
+        strokeWidth: 1.5,
+        roughness: 1,
+        seed: o.seed + 200 + i,
+      })
+    );
+  }
+  // 散落的"向量点"
+  [
+    [180, 200, 14],
+    [320, 230, 14],
+    [240, 280, 14],
+    [250, 380, 18],
+  ].forEach(([x, y, r], i) => {
+    g.appendChild(
+      fillCircle(rc, x, y, r, o, { solidStroke: true, seedOffset: 500 + i })
+    );
+  });
+};
+
+/* —— 9. Function Calling（齿轮模块互连） —— */
+const drawModules: SymbolDrawer = (g, rc, o) => {
+  // 3 个模块（圆角方块）+ 连接线
+  const modules = [
+    { x: 60, y: 130, w: 140, h: 120 },
+    { x: 310, y: 100, w: 140, h: 120 },
+    { x: 180, y: 320, w: 140, h: 120 },
+  ];
+  modules.forEach((m, i) => {
+    g.appendChild(fillRect(rc, m.x, m.y, m.w, m.h, o, { seedOffset: i * 11 }));
+    // 每个模块里画 3 个小点表示"内部"
+    [-30, 0, 30].forEach((dx, j) => {
+      g.appendChild(
+        fillCircle(rc, m.x + m.w / 2 + dx, m.y + m.h / 2, 8, o, {
+          solidStroke: true,
+          seedOffset: 50 + i * 10 + j,
+        })
+      );
+    });
+  });
+  // 互连
+  const connects: [number, number, number, number][] = [
+    [200, 190, 310, 160],
+    [380, 220, 320, 320],
+    [250, 380, 130, 250],
+  ];
+  connects.forEach((c, i) => {
+    g.appendChild(
+      rc.line(c[0], c[1], c[2], c[3], {
+        stroke: o.stroke,
+        strokeWidth: 4,
+        roughness: 1.4,
+        seed: o.seed + 700 + i,
+      })
+    );
+  });
+};
+
+/* —— 10. Chain of Thought（链环） —— */
+const drawChain: SymbolDrawer = (g, rc, o) => {
+  // 4 个椭圆环交错， 形成链条
+  const links = [
+    { cx: 110, cy: 250, rot: 25 },
+    { cx: 210, cy: 250, rot: -25 },
+    { cx: 310, cy: 250, rot: 25 },
+    { cx: 410, cy: 250, rot: -25 },
+  ];
+  links.forEach((l, i) => {
+    const ellipse = rc.ellipse(0, 0, 100, 60, {
+      stroke: o.stroke,
+      strokeWidth: 5,
+      roughness: 1.3,
+      seed: o.seed + i,
+    });
+    const linkG = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'g'
+    );
+    linkG.setAttribute(
+      'transform',
+      `translate(${l.cx}, ${l.cy}) rotate(${l.rot})`
+    );
+    linkG.appendChild(ellipse);
+    g.appendChild(linkG);
+  });
+};
+
+/* —— 11. MCP（多插头汇合） —— */
+const drawConnectorHub: SymbolDrawer = (g, rc, o) => {
+  // 中心枢纽（六边形/圆）
+  g.appendChild(fillCircle(rc, 250, 250, 65, o, { stroke: 5 }));
+  // 4 个"插头"模块在四角， 由粗连线引到中心
+  const plugs = [
+    { x: 50, y: 80, w: 90, h: 60 },
+    { x: 360, y: 80, w: 90, h: 60 },
+    { x: 50, y: 380, w: 90, h: 60 },
+    { x: 360, y: 380, w: 90, h: 60 },
+  ];
+  plugs.forEach((p, i) => {
+    g.appendChild(fillRect(rc, p.x, p.y, p.w, p.h, o, { seedOffset: i * 5 }));
+    const cx = p.x + p.w / 2;
+    const cy = p.y + p.h / 2;
+    g.appendChild(
+      rc.line(cx, cy, 250, 250, {
+        stroke: o.stroke,
+        strokeWidth: 4,
+        roughness: 1.3,
+        seed: o.seed + 100 + i,
+      })
+    );
+  });
+};
+
+/* —— 12. Hallucination（扭曲波纹） —— */
+const drawDistortion: SymbolDrawer = (g, rc, o) => {
+  // 中央"问号般"的扭曲曲线
+  for (let i = 0; i < 4; i++) {
+    const yo = 150 + i * 40;
+    const amp = 30 + i * 5;
+    const pts: [number, number][] = [];
+    for (let x = 50; x <= 450; x += 30) {
+      pts.push([
+        x,
+        yo + Math.sin((x / 50) + i + (o.seed % 10) * 0.3) * amp,
+      ]);
+    }
+    g.appendChild(
+      rc.curve(pts, {
+        stroke: o.stroke,
+        strokeWidth: 4 - i * 0.4,
+        roughness: 1.8,
+        seed: o.seed + i * 10,
+      })
+    );
+  }
+  // 一两个"幻觉点"
+  g.appendChild(
+    fillCircle(rc, 380, 180, 18, o, { solidStroke: true, seedOffset: 800 })
+  );
+  g.appendChild(
+    fillCircle(rc, 150, 380, 14, o, { solidStroke: true, seedOffset: 810 })
+  );
+};
+
+/* —— 13. Sampling（树状分支） —— */
+const drawBranching: SymbolDrawer = (g, rc, o) => {
+  // 一个起点， 三层分叉
+  const root = { x: 250, y: 80 };
+  const l1 = [
+    { x: 140, y: 200 },
+    { x: 360, y: 200 },
+  ];
+  const l2 = [
+    { x: 70, y: 340 },
+    { x: 210, y: 340 },
+    { x: 290, y: 340 },
+    { x: 430, y: 340 },
+  ];
+  // 连接
+  const drawLine = (
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+    seed: number,
+    w = 3
+  ) => {
+    g.appendChild(
+      rc.line(a.x, a.y, b.x, b.y, {
+        stroke: o.stroke,
+        strokeWidth: w,
+        roughness: 1.4,
+        seed,
+      })
+    );
+  };
+  drawLine(root, l1[0], o.seed + 1, 5);
+  drawLine(root, l1[1], o.seed + 2, 3);
+  drawLine(l1[0], l2[0], o.seed + 3, 4);
+  drawLine(l1[0], l2[1], o.seed + 4, 2);
+  drawLine(l1[1], l2[2], o.seed + 5, 2);
+  drawLine(l1[1], l2[3], o.seed + 6, 4);
+  // 节点
+  g.appendChild(fillCircle(rc, root.x, root.y, 22, o, { solidStroke: true, seedOffset: 11 }));
+  [...l1, ...l2].forEach((p, i) => {
+    g.appendChild(fillCircle(rc, p.x, p.y, 16, o, { seedOffset: 100 + i }));
+  });
+};
+
+/* —— 14. RLHF（反馈回路） —— */
+const drawFeedbackLoop: SymbolDrawer = (g, rc, o) => {
+  // 两个矩形（model 和 human） + 中间循环箭头
+  g.appendChild(fillRect(rc, 60, 200, 140, 100, o));
+  g.appendChild(fillRect(rc, 300, 200, 140, 100, o, { seedOffset: 50 }));
+  // 上下两个箭头形成循环
+  g.appendChild(
+    rc.curve(
+      [
+        [195, 230],
+        [250, 150],
+        [305, 230],
+      ],
+      {
+        stroke: o.stroke,
+        strokeWidth: 4,
+        roughness: 1.3,
+        seed: o.seed + 100,
+      }
+    )
+  );
+  g.appendChild(
+    rc.curve(
+      [
+        [305, 270],
+        [250, 350],
+        [195, 270],
+      ],
+      {
+        stroke: o.stroke,
+        strokeWidth: 4,
+        roughness: 1.3,
+        seed: o.seed + 101,
+      }
+    )
+  );
+  // 内部小圆， 表示输入
+  g.appendChild(
+    fillCircle(rc, 130, 250, 18, o, { solidStroke: true, seedOffset: 200 })
+  );
+  g.appendChild(
+    fillCircle(rc, 370, 250, 18, o, { solidStroke: true, seedOffset: 210 })
+  );
+};
+
+/* —— 15. MoE（一对多专家） —— */
+const drawExperts: SymbolDrawer = (g, rc, o) => {
+  // 顶部一个 router (大方块)， 下面 5 个 expert (小方块)
+  g.appendChild(fillRect(rc, 180, 70, 140, 80, o, { stroke: 5 }));
+  // expert blocks
+  for (let i = 0; i < 5; i++) {
+    const x = 50 + i * 90;
+    g.appendChild(fillRect(rc, x, 280, 70, 100, o, { seedOffset: 30 + i }));
+    // 连接（只有 2 条被激活， 加粗）
+    const active = i === 1 || i === 3;
+    g.appendChild(
+      rc.line(x + 35, 280, 250, 150, {
+        stroke: o.stroke,
+        strokeWidth: active ? 5 : 1.5,
+        roughness: active ? 1.3 : 0.8,
+        seed: o.seed + 60 + i,
+      })
+    );
+  }
+};
+
+/* —— 16. Chunking（被切分的长条） —— */
+const drawChunks: SymbolDrawer = (g, rc, o) => {
+  // 6 个不同高度的小方块， 紧挨着， 暗示连续 chunk
+  const cols = [
+    { h: 180, w: 60 },
+    { h: 220, w: 70 },
+    { h: 160, w: 60 },
+    { h: 240, w: 80 },
+    { h: 180, w: 60 },
+    { h: 210, w: 70 },
+  ];
+  let x = 50;
+  cols.forEach((c, i) => {
+    g.appendChild(
+      fillRect(rc, x, 400 - c.h, c.w, c.h, o, { seedOffset: i * 5 })
+    );
+    x += c.w + 4;
+  });
+  // 上方一个长条暗示原文档
+  g.appendChild(
+    fillRect(rc, 30, 120, 440, 50, o, { seedOffset: 90 })
+  );
+  // 从原文档到 chunk 的虚线
+  for (let i = 0; i < 6; i++) {
+    const startX = 30 + ((440 / 6) * i + 30);
+    for (let y = 180; y < 220; y += 10) {
+      g.appendChild(
+        rc.line(startX, y, startX, y + 5, {
+          stroke: o.stroke,
+          strokeWidth: 1.5,
+          roughness: 0.5,
+          seed: o.seed + 200 + i * 30 + y,
+        })
+      );
+    }
+  }
+};
+
+/* —— 17. Rerank（重新排序） —— */
+const drawReorder: SymbolDrawer = (g, rc, o) => {
+  // 左侧 4 个项目（原始顺序）， 右侧 4 个（重排后）
+  for (let i = 0; i < 4; i++) {
+    g.appendChild(
+      fillRect(rc, 50, 100 + i * 70, 130, 50, o, { seedOffset: i })
+    );
+    g.appendChild(
+      fillRect(rc, 320, 100 + i * 70, 130, 50, o, { seedOffset: i + 100 })
+    );
+  }
+  // 重排连接线（交叉）
+  const order = [2, 0, 3, 1]; // 原序 → 新序
+  order.forEach((to, from) => {
+    g.appendChild(
+      rc.line(
+        180,
+        125 + from * 70,
+        320,
+        125 + to * 70,
+        {
+          stroke: o.stroke,
+          strokeWidth: from === 0 ? 5 : 2.5,
+          roughness: 1.4,
+          seed: o.seed + 500 + from,
+        }
+      )
+    );
+  });
+};
+
+/* —— 18. Contrastive Learning（拉近/推远） —— */
+const drawContrastive: SymbolDrawer = (g, rc, o) => {
+  // 左上：两个相似的点， 中间有"拉近"箭头
+  g.appendChild(fillCircle(rc, 90, 130, 30, o, { solidStroke: true, seedOffset: 1 }));
+  g.appendChild(fillCircle(rc, 160, 160, 28, o, { solidStroke: true, seedOffset: 2 }));
+  // 拉近的指示（两条向内的小线）
+  g.appendChild(
+    rc.line(120, 105, 140, 130, {
+      stroke: o.stroke,
+      strokeWidth: 3,
+      roughness: 1,
+      seed: o.seed + 10,
+    })
+  );
+  g.appendChild(
+    rc.line(155, 105, 135, 130, {
+      stroke: o.stroke,
+      strokeWidth: 3,
+      roughness: 1,
+      seed: o.seed + 11,
+    })
+  );
+  // 右下：两个相距远的点 + "推远"
+  g.appendChild(fillCircle(rc, 320, 320, 30, o, { solidStroke: true, seedOffset: 100 }));
+  g.appendChild(fillCircle(rc, 440, 420, 28, o, { solidStroke: true, seedOffset: 101 }));
+  // 推远箭头
+  g.appendChild(
+    rc.line(350, 350, 410, 410, {
+      stroke: o.stroke,
+      strokeWidth: 3,
+      roughness: 1,
+      seed: o.seed + 50,
+    })
+  );
+  // 两个虚线圈包住相似 / 不相似的组
+  g.appendChild(
+    rc.ellipse(125, 145, 150, 120, {
+      stroke: o.stroke,
+      strokeWidth: 2,
+      roughness: 1.6,
+      seed: o.seed + 90,
+    })
+  );
+  g.appendChild(
+    rc.ellipse(380, 370, 200, 180, {
+      stroke: o.stroke,
+      strokeWidth: 2,
+      roughness: 1.6,
+      seed: o.seed + 91,
+    })
+  );
+};
+
+/* —— 19. BERT（双向箭头） —— */
+const drawBidirectional: SymbolDrawer = (g, rc, o) => {
+  // 中央一个"被遮"的方块（mask）
+  g.appendChild(fillRect(rc, 200, 200, 100, 100, o, { stroke: 5 }));
+  // 中间画一个 "?"
+  g.appendChild(
+    rc.curve(
+      [
+        [228, 245],
+        [240, 230],
+        [264, 230],
+        [275, 248],
+        [262, 265],
+        [252, 270],
+        [252, 280],
+      ],
+      {
+        stroke: o.stroke,
+        strokeWidth: 4,
+        roughness: 1.2,
+        seed: o.seed + 10,
+      }
+    )
+  );
+  g.appendChild(
+    fillCircle(rc, 252, 290, 5, o, { solidStroke: true, seedOffset: 11 })
+  );
+  // 左侧 3 个 token
+  for (let i = 0; i < 3; i++) {
+    g.appendChild(
+      fillRect(rc, 30, 200 + i * 35, 60, 28, o, { seedOffset: 30 + i })
+    );
+  }
+  // 右侧 3 个 token
+  for (let i = 0; i < 3; i++) {
+    g.appendChild(
+      fillRect(rc, 410, 200 + i * 35, 60, 28, o, { seedOffset: 50 + i })
+    );
+  }
+  // 左侧 → 中央箭头
+  for (let i = 0; i < 3; i++) {
+    g.appendChild(
+      rc.line(90, 215 + i * 35, 200, 250, {
+        stroke: o.stroke,
+        strokeWidth: 2,
+        roughness: 1.2,
+        seed: o.seed + 70 + i,
+      })
+    );
+  }
+  // 右侧 → 中央箭头
+  for (let i = 0; i < 3; i++) {
+    g.appendChild(
+      rc.line(410, 215 + i * 35, 300, 250, {
+        stroke: o.stroke,
+        strokeWidth: 2,
+        roughness: 1.2,
+        seed: o.seed + 80 + i,
+      })
+    );
+  }
+};
+
+/* —— 20. Train/Finetune/RAG（三岔路） —— */
+const drawThreePaths: SymbolDrawer = (g, rc, o) => {
+  const start = { x: 250, y: 80 };
+  const ends = [
+    { x: 80, y: 380, label: 'train' },
+    { x: 250, y: 380, label: 'finetune' },
+    { x: 420, y: 380, label: 'rag' },
+  ];
+  g.appendChild(
+    fillCircle(rc, start.x, start.y, 28, o, { solidStroke: true, seedOffset: 1 })
+  );
+  ends.forEach((e, i) => {
+    g.appendChild(
+      rc.line(start.x, start.y, e.x, e.y, {
+        stroke: o.stroke,
+        strokeWidth: 4 + i,
+        roughness: 1.3,
+        seed: o.seed + 50 + i,
+      })
+    );
+    g.appendChild(
+      fillRect(rc, e.x - 50, e.y - 30, 100, 60, o, { seedOffset: 100 + i })
+    );
+  });
+};
+
+/* ─────────────────────────────────────────────
+   Slug → drawer 映射
+   ───────────────────────────────────────────── */
+const SYMBOL_REGISTRY: { test: (slug: string) => boolean; drawer: SymbolDrawer }[] = [
+  { test: (s) => s.includes('hello-motes'), drawer: drawNotebook },
+  { test: (s) => s.includes('what-is-token'), drawer: drawBrokenBlocks },
+  { test: (s) => s.includes('prompt-caching'), drawer: drawCacheLayers },
+  { test: (s) => s.includes('embedding'), drawer: drawPointCloud },
+  { test: (s) => s.includes('context-window'), drawer: drawWindowFrame },
+  { test: (s) => s.includes('attention'), drawer: drawRadiation },
+  { test: (s) => s.includes('rag') && !s.includes('train-vs'), drawer: drawBookSearch },
+  { test: (s) => s.includes('vector-db'), drawer: drawVectorGrid },
+  { test: (s) => s.includes('function-calling'), drawer: drawModules },
+  { test: (s) => s.includes('chain-of-thought'), drawer: drawChain },
+  { test: (s) => s.includes('mcp'), drawer: drawConnectorHub },
+  { test: (s) => s.includes('hallucination'), drawer: drawDistortion },
+  { test: (s) => s.includes('sampling'), drawer: drawBranching },
+  { test: (s) => s.includes('rlhf'), drawer: drawFeedbackLoop },
+  { test: (s) => s.includes('moe'), drawer: drawExperts },
+  { test: (s) => s.includes('chunking'), drawer: drawChunks },
+  { test: (s) => s.includes('rerank'), drawer: drawReorder },
+  { test: (s) => s.includes('contrastive'), drawer: drawContrastive },
+  { test: (s) => s.includes('bert'), drawer: drawBidirectional },
+  { test: (s) => s.includes('train-vs') || s.includes('finetune'), drawer: drawThreePaths },
+];
+
+function pickDrawer(slug: string): SymbolDrawer {
+  for (const { test, drawer } of SYMBOL_REGISTRY) {
+    if (test(slug)) return drawer;
+  }
+  return drawRadiation; // fallback
+}
+
+/* ─────────────────────────────────────────────
+   Main CoverArt 组件
+   ───────────────────────────────────────────── */
+export function CoverArt({ slug }: { slug: string }) {
   const ref = useRef<SVGSVGElement>(null);
-  const palette = paletteForSlug(slug);
   const seed = hashSlug(slug);
+  const palette = PALETTES[seed % PALETTES.length];
+  const variant = (seed >> 8) % 3; // 0/1/2 三种布局变体
 
   useEffect(() => {
     const svg = ref.current;
     if (!svg) return;
-    // 清除之前的 rough 绘制
+    // 清掉之前 rough 的产物
     svg.querySelectorAll('[data-rough]').forEach((n) => n.remove());
     const rc = rough.svg(svg);
 
-    // 三条粗黑墨线穿过整图（roughjs 曲线， 看起来手绘）
-    const inkPaths: [number, number][][] = [
-      [
-        [40, 180],
-        [400, 100],
-        [800, 220],
-        [1160, 140],
-      ],
-      [
-        [80, 480],
-        [500, 540],
-        [900, 460],
-        [1130, 540],
-      ],
-      [
-        [580, 60],
-        [620, 280],
-        [700, 480],
-        [780, 640],
-      ],
-    ];
-    inkPaths.forEach((pts, i) => {
-      const path = rc.curve(pts, {
-        stroke: palette.ink,
-        strokeWidth: 6,
-        roughness: 1.6,
-        seed: seed + i * 37,
-      });
-      path.setAttribute('data-rough', 'true');
-      svg.appendChild(path);
-    });
-  }, [slug, palette, seed]);
+    // 主符号永远画在正中心， 放大 1.4 倍占据更多视觉空间
+    // 符号本身在 0-500 局部坐标里画
+    // translate(250, 250) + scale(1.4) → 符号填充 250~950， 中心 (600, 600) = canvas 中心
+    const symbolG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    symbolG.setAttribute('transform', 'translate(250, 250) scale(1.4)');
+    symbolG.setAttribute('data-rough', 'true');
+    const drawer = pickDrawer(slug);
+    drawer(symbolG, rc, { stroke: palette.ink, fill: palette.card, seed });
+    svg.appendChild(symbolG);
+
+  }, [slug, seed, palette, variant]);
 
   return (
     <svg
       ref={ref}
-      viewBox="0 0 1200 675"
+      viewBox="0 0 1200 1200"
       xmlns="http://www.w3.org/2000/svg"
       style={{ display: 'block', width: '100%', height: 'auto' }}
     >
-      {/* 外层奶油纸色 */}
-      <rect width="1200" height="675" fill={palette.bg} />
+      {/* 主色块铺满整个图 */}
+      <rect width="1200" height="1200" fill={palette.bg} />
 
-      {/* halftone dot pattern */}
-      <defs>
-        <pattern
-          id={`halftone-${slug}`}
-          x="0"
-          y="0"
-          width="14"
-          height="14"
-          patternUnits="userSpaceOnUse"
-        >
-          <circle cx="7" cy="7" r="1.6" fill={palette.dot} opacity="0.45" />
-        </pattern>
-      </defs>
-
-      {/* 左侧色块 */}
-      <rect x="50" y="50" width="500" height="575" fill={palette.panelA} />
-
-      {/* 右侧色块 */}
-      <rect x="570" y="50" width="580" height="575" fill={palette.panelB} />
-
-      {/* 右侧色块的下半部分加 halftone */}
-      <rect
-        x="570"
-        y="350"
-        width="580"
-        height="275"
-        fill={`url(#halftone-${slug})`}
-      />
-
-      {/* 左侧的主符号 */}
-      <SymbolForSlug slug={slug} fillColor={palette.card} strokeColor={palette.ink} seed={seed} customSymbol={symbol} />
-
-      {/* 右侧的白色 grid card， 微微旋转 */}
-      <g transform="translate(650, 110) rotate(-3 200 200)">
-        <rect width="400" height="380" fill={palette.card} />
-        {/* 网格 */}
-        <GridPattern color={palette.dot} />
-        {/* 卡片里画一条手绘曲线 */}
-        <GridCardSquiggle seed={seed + 1000} ink={palette.ink} />
-      </g>
+      {/* halftone 装饰： 三种 variant —— 0 在下、 1 没有、 2 在上 */}
+      {variant !== 1 && (
+        <>
+          <defs>
+            <pattern
+              id={`halftone-${slug}`}
+              x="0"
+              y="0"
+              width="16"
+              height="16"
+              patternUnits="userSpaceOnUse"
+            >
+              <circle cx="8" cy="8" r="2" fill={palette.dot} opacity="0.4" />
+            </pattern>
+          </defs>
+          {variant === 0 ? (
+            <rect
+              x="0"
+              y="880"
+              width="1200"
+              height="320"
+              fill={`url(#halftone-${slug})`}
+            />
+          ) : (
+            <rect
+              x="0"
+              y="0"
+              width="1200"
+              height="320"
+              fill={`url(#halftone-${slug})`}
+            />
+          )}
+        </>
+      )}
     </svg>
   );
-}
-
-/* ---------- 网格 ---------- */
-function GridPattern({ color }: { color: string }) {
-  const lines = [];
-  for (let i = 1; i < 20; i++) {
-    lines.push(
-      <line
-        key={`h${i}`}
-        x1="0"
-        y1={i * 20}
-        x2="400"
-        y2={i * 20}
-        stroke={color}
-        strokeWidth="0.5"
-        opacity="0.25"
-      />
-    );
-  }
-  for (let i = 1; i < 20; i++) {
-    lines.push(
-      <line
-        key={`v${i}`}
-        x1={i * 20}
-        y1="0"
-        x2={i * 20}
-        y2="380"
-        stroke={color}
-        strokeWidth="0.5"
-        opacity="0.25"
-      />
-    );
-  }
-  return <>{lines}</>;
-}
-
-/* ---------- grid card 内的手绘小曲线 ---------- */
-function GridCardSquiggle({ seed, ink }: { seed: number; ink: string }) {
-  const ref = useRef<SVGGElement>(null);
-  useEffect(() => {
-    const g = ref.current;
-    if (!g) return;
-    while (g.firstChild) g.removeChild(g.firstChild);
-    const svg = g.ownerSVGElement;
-    if (!svg) return;
-    const rc = rough.svg(svg);
-    // 在 grid card 里画两条手绘弯线
-    g.appendChild(
-      rc.curve(
-        [
-          [60, 100],
-          [180, 60],
-          [280, 200],
-          [340, 140],
-        ],
-        { stroke: ink, strokeWidth: 4, roughness: 1.5, seed }
-      )
-    );
-    // 几个点
-    [
-      [120, 130, 8],
-      [220, 200, 10],
-      [310, 150, 6],
-    ].forEach(([x, y, r], i) => {
-      g.appendChild(
-        rc.circle(x, y, r * 2, {
-          stroke: ink,
-          fill: ink,
-          fillStyle: 'solid',
-          strokeWidth: 1,
-          roughness: 0.8,
-          seed: seed + 100 + i,
-        })
-      );
-    });
-  }, [seed, ink]);
-  return <g ref={ref} />;
-}
-
-/* ---------- 主符号：根据 slug 不同符号 ---------- */
-function SymbolForSlug({
-  slug,
-  fillColor,
-  strokeColor,
-  seed,
-  customSymbol,
-}: {
-  slug: string;
-  fillColor: string;
-  strokeColor: string;
-  seed: number;
-  customSymbol?: string;
-}) {
-  const ref = useRef<SVGGElement>(null);
-  const which = customSymbol ?? slug;
-
-  useEffect(() => {
-    const g = ref.current;
-    if (!g) return;
-    while (g.firstChild) g.removeChild(g.firstChild);
-    const svg = g.ownerSVGElement;
-    if (!svg) return;
-    const rc = rough.svg(svg);
-
-    if (which.includes('hello-motes') || customSymbol === 'notebook') {
-      // 欢迎篇： 散落的"概念片段"被聚集到一本笔记里
-      const note = rc.rectangle(0, 0, 200, 260, {
-        stroke: strokeColor,
-        strokeWidth: 4,
-        roughness: 1.4,
-        fill: fillColor,
-        fillStyle: 'solid',
-        seed,
-      });
-      const noteG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      noteG.setAttribute('transform', 'translate(100, 70) rotate(-4 100 130)');
-      noteG.appendChild(note);
-      [40, 90, 140].forEach((y, i) => {
-        const w = i === 1 ? 130 : 110;
-        noteG.appendChild(
-          rc.line(30, y, 30 + w, y, {
-            stroke: strokeColor,
-            strokeWidth: 3,
-            roughness: 1.6,
-            seed: seed + 10 + i,
-          })
-        );
-      });
-      g.appendChild(noteG);
-
-      const fragments: { cx: number; cy: number; r: number }[] = [
-        { cx: 40, cy: 50, r: 22 },
-        { cx: 410, cy: 80, r: 18 },
-        { cx: 30, cy: 380, r: 28 },
-        { cx: 430, cy: 360, r: 16 },
-        { cx: 220, cy: 440, r: 20 },
-      ];
-      fragments.forEach((f, i) => {
-        g.appendChild(
-          rc.line(f.cx, f.cy, 200, 200, {
-            stroke: strokeColor,
-            strokeWidth: 1.5,
-            roughness: 1.3,
-            seed: seed + 200 + i,
-          })
-        );
-        g.appendChild(
-          rc.circle(f.cx, f.cy, f.r * 2, {
-            stroke: strokeColor,
-            strokeWidth: 3,
-            fill: fillColor,
-            fillStyle: 'solid',
-            roughness: 1.4,
-            seed: seed + 300 + i,
-          })
-        );
-      });
-    } else {
-      // 通用 fallback： 几何符号 + 散落点
-      // 一个大圆 + 几条切线 + 几个小圆点， 整体抽象但有"中心 + 外延"的结构感
-      const cx = 230;
-      const cy = 230;
-      g.appendChild(
-        rc.circle(cx, cy, 220, {
-          stroke: strokeColor,
-          strokeWidth: 5,
-          roughness: 1.6,
-          fill: fillColor,
-          fillStyle: 'solid',
-          seed,
-        })
-      );
-      // 内部 3 条放射线
-      const angles = [
-        seed % 360,
-        (seed * 7 + 80) % 360,
-        (seed * 11 + 200) % 360,
-      ];
-      angles.forEach((deg, i) => {
-        const rad = (deg * Math.PI) / 180;
-        const x2 = cx + Math.cos(rad) * 180;
-        const y2 = cy + Math.sin(rad) * 180;
-        g.appendChild(
-          rc.line(cx, cy, x2, y2, {
-            stroke: strokeColor,
-            strokeWidth: 4,
-            roughness: 1.4,
-            seed: seed + 50 + i,
-          })
-        );
-        // 末端小球
-        g.appendChild(
-          rc.circle(x2, y2, 28, {
-            stroke: strokeColor,
-            strokeWidth: 3,
-            fill: fillColor,
-            fillStyle: 'solid',
-            roughness: 1.3,
-            seed: seed + 100 + i,
-          })
-        );
-      });
-      // 中心实心点
-      g.appendChild(
-        rc.circle(cx, cy, 36, {
-          stroke: strokeColor,
-          strokeWidth: 2,
-          fill: strokeColor,
-          fillStyle: 'solid',
-          roughness: 1,
-          seed: seed + 999,
-        })
-      );
-    }
-  }, [which, fillColor, strokeColor, seed, customSymbol]);
-
-  // 左侧 panel 内的 viewBox: 整体 (50,50)-(550,625)， 放符号
-  return <g ref={ref} transform="translate(75, 75)" />;
 }

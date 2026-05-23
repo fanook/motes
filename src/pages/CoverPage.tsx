@@ -8,7 +8,7 @@ export default function CoverPage() {
       id="cover-art-page"
       style={{
         width: '1200px',
-        height: '675px',
+        height: '1200px',
         margin: 0,
         padding: 0,
         background: '#f4ecd8',

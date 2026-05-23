@@ -1,4 +1,6 @@
 import {
+  createContext,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -6,6 +8,10 @@ import {
   type ReactNode,
 } from 'react';
 import rough from 'roughjs';
+import { CoverArt } from './cover-art';
+
+/* MoteContext： MoteView 提供当前 slug， Paper 用来渲染封面 */
+export const MoteSlugContext = createContext<string | undefined>(undefined);
 
 /* ---------- 墨水色 ---------- */
 export const INK = '#1f2937';
@@ -25,19 +31,27 @@ export function Paper({
   children: ReactNode;
   className?: string;
 }) {
+  const slug = useContext(MoteSlugContext);
   return (
     <div
       id="mote-paper"
       data-mote-paper
-      className={`relative px-4 py-6 sm:px-12 sm:py-14 rounded-sm shadow-xl min-h-[60vh] sm:min-h-[70vh] ${className ?? ''}`}
+      className={`relative rounded-sm shadow-xl overflow-hidden min-h-[60vh] sm:min-h-[70vh] ${className ?? ''}`}
       style={{
         backgroundColor: '#fdfaf0',
-        backgroundImage:
-          'repeating-linear-gradient(transparent, transparent 31px, rgba(30,58,138,0.07) 32px)',
         color: INK,
       }}
     >
-      {children}
+      {slug && <CoverArt slug={slug} />}
+      <div
+        className="px-4 py-6 sm:px-12 sm:py-14"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(transparent, transparent 31px, rgba(30,58,138,0.07) 32px)',
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
