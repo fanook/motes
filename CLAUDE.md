@@ -1,6 +1,6 @@
 # motes
 
-每天用 AI 整理一些细碎的知识。每条知识 = `src/motes/` 下的一个 `.tsx` 文件，自动收录、自动生成路由。
+每天用 AI 整理一些 AI 相关的知识碎片。每条知识 = `src/motes/` 下的一个 `.tsx` 文件，自动收录、自动生成路由。
 
 ## 技术栈
 
@@ -35,6 +35,17 @@ export default function Mote() {
 - 文件名格式：`YYYY-MM-DD-slug.tsx`，`slug` 部分即 URL。
 - `meta.date` 用 ISO 日期字符串，列表按日期倒序。
 - 每条 mote 可以自由用 React/Tailwind 做任意排版与交互，不必拘泥统一模板。
+
+## 标题（meta.title）约定
+
+- `meta.title` 是显示在 **首页列表卡片**、 **浏览器标签**、 **分享卡** 上的短标题
+- **保持简洁**，最好 ≤ 10 个汉字（约相当于英文 20 字符内）
+- **不要**把副标题 / 破折号后面的注解写进 `meta.title`
+- 副标题写在文章 `<h1>` 下方的 `<p>` 里（用 `—— xxx` 风格）
+
+例：
+- ✅ `meta.title: 'Token 是什么'`，文章里 h1 + 副标题"AI 眼里的'小积木'"分两行
+- ❌ `meta.title: 'Token 是什么 —— AI 眼里的"小积木"'`（卡片会换行/拥挤）
 
 ## 变更历史（Changelog）
 

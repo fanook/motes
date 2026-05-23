@@ -81,7 +81,7 @@ export default function Home() {
               className="mt-3 text-lg sm:text-xl text-stone-500"
               style={{ fontFamily: PEN }}
             >
-              每天一点细碎的知识
+              每天一点 AI 知识碎片
             </p>
           </div>
 

@@ -19,7 +19,7 @@ import {
 import type { MoteMeta } from '../lib/motes';
 
 export const meta: MoteMeta = {
-  title: 'Token 是什么 —— AI 眼里的"小积木"',
+  title: 'Token 是什么',
   date: '2026-05-23',
   tags: ['AI 入门', 'LLM'],
   summary:
@@ -213,10 +213,10 @@ export default function Mote() {
           className="text-3xl sm:text-5xl leading-tight"
           style={{ fontFamily: HAND, color: INK_SEPIA }}
         >
-          Token 是什么？
+          Token
         </h1>
         <div className="mt-1">
-          <RoughUnderline width={220} seed={11} />
+          <RoughUnderline width={150} seed={11} />
         </div>
         <p
           className="mt-2 sm:mt-3 text-lg sm:text-2xl"
