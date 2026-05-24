@@ -9,6 +9,7 @@ import {
 } from 'react';
 import rough from 'roughjs';
 import { CoverArt } from './cover-art';
+import { TreeRings } from './tree-rings';
 
 /* MoteContext： MoteView 提供当前 slug， Paper 用来渲染封面 */
 export const MoteSlugContext = createContext<string | undefined>(undefined);
@@ -406,47 +407,17 @@ export function ShuffleIcon({
   size?: number;
   spin?: boolean;
 }) {
-  const ref = useRef<SVGSVGElement>(null);
-  useEffect(() => {
-    const svg = ref.current;
-    if (!svg) return;
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-    const rc = rough.svg(svg);
-    // 树的年轮：嵌套的、不太圆的同心椭圆
-    const SVG_NS = 'http://www.w3.org/2000/svg';
-    const rings = [
-      { cx: 13, cy: 13, w: 22, h: 19, rot: -6, seed: 91 },
-      { cx: 14, cy: 12, w: 14, h: 12, rot: 10, seed: 92 },
-      { cx: 14, cy: 13, w: 6, h: 5, rot: -2, seed: 93 },
-    ];
-    rings.forEach((r) => {
-      const node = rc.ellipse(0, 0, r.w, r.h, {
-        stroke: color,
-        strokeWidth: 1.3,
-        roughness: 1.3,
-        seed: r.seed,
-      });
-      const g = document.createElementNS(SVG_NS, 'g');
-      g.setAttribute(
-        'transform',
-        `translate(${r.cx}, ${r.cy}) rotate(${r.rot})`
-      );
-      g.appendChild(node);
-      svg.appendChild(g);
-    });
-  }, [color, size]);
+  // 直接复用 TreeRings 组件 ， 保证跟 favicon / 头像完全一致
   return (
-    <svg
-      ref={ref}
-      width={size}
-      height={size * 0.95}
-      viewBox="0 0 26 26"
+    <div
       style={{
-        overflow: 'visible',
+        display: 'inline-block',
         transition: 'transform 0.5s ease-out',
         transform: spin ? 'rotate(180deg)' : 'rotate(0deg)',
       }}
-    />
+    >
+      <TreeRings size={size} color={color} ringCount={3} />
+    </div>
   );
 }
 
