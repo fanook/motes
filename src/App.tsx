@@ -5,6 +5,8 @@ import CoverPage from './pages/CoverPage';
 import AvatarPreview from './pages/AvatarPreview';
 import AvatarExport from './pages/AvatarExport';
 import FaviconExport from './pages/FaviconExport';
+import RedbookPreview from './pages/RedbookPreview';
+import RedbookCardExport from './pages/RedbookCardExport';
 
 export default function App() {
   return (
@@ -16,6 +18,9 @@ export default function App() {
         <Route path="/avatars" element={<AvatarPreview />} />
         <Route path="/avatar/:id" element={<AvatarExport />} />
         <Route path="/favicon-export" element={<FaviconExport />} />
+        <Route path="/redbook" element={<RedbookPreview />} />
+        <Route path="/redbook/:slug" element={<RedbookPreview />} />
+        <Route path="/redbook-card/:slug/:index" element={<RedbookCardExport />} />
       </Routes>
     </BrowserRouter>
   );

@@ -476,6 +476,141 @@ content: |
 - 草稿 media_id 没法用 wenyan-mcp 删除， 重复发就行， 用户在公众号后台手工清理旧的
 - 发布前先确认 dev server 跑的是最新代码（如果刚改过文件， npm run dev 的 HMR 应已生效； 怀疑就 kill + 重启）
 
+## 发布到小红书（操作手册）
+
+小红书没有公开 API ， 通过 **Playwright 直接操作浏览器**发布。 用户日常浏览器
+跟 Playwright 控制的浏览器 cookie 不通 ， 第一次需要在 Playwright 那个实例里
+手动扫码登录。
+
+### 0. 内容架构
+
+- 每个 mote 在 `src/redbook/` 下有一组 3:4 卡片 `<slug>-card-N.tsx`
+- 共享容器：`src/components/redbook-card.tsx`
+  - `RedbookCard` —— 1080×1440 奶油纸底容器（默认带横线纸纹， 封面可 `noLines`）
+  - `CardSectionHeading` —— 章节标题 ， 自带手绘下划线（roughness 2.5+）
+  - `CardText` / `CardPager` / `CardSignature`
+- 路由：
+  - `/redbook` 列表所有组
+  - `/redbook/:slug` 缩略图浏览一组
+  - `/redbook-card/:slug/:index` 单卡导出页（用于 Playwright 截图）
+
+### 1. 卡片设计规范（必须遵守）
+
+- **数量**：4~7 张/组。 别太多 ， 一刷就过。
+- **视口**：1080×1440 (3:4) ， 用 Playwright viewport 1100×1460 + 元素截图。
+- **封面卡 (card-1)** 必须：
+  - `noLines`（无横线背景）
+  - layout: `padding: '180px 90px 220px'` + `justifyContent: 'space-between'`
+  - 顶部主图 620×620（复用 `<CoverArt slug={...} />`）
+  - 底部 `<CardTitle subtitle={...}>` 大标题 + 副标题
+  - **图和标题要有距离感**， 标题要靠卡片底部 ， 不能贴图
+- **CardPager 必须从 meta 读**：`index={meta.index} total={meta.total}` ，
+  不要写死数字 ， 不然改组结构会忘改。
+- **手绘风延续网站调性**：rough.js 矢量 + 奶油底 + INK_SEPIA 标题色 + 横线纸纹。
+  字体 `HAND` (标题) + `PEN` (正文) ， 跟网站完全一致。
+
+### 2. 内容规则（必须遵守）
+
+**✅ 干货优先：尽可能把网页 mote 的核心内容都搬到小红书卡片。** 小红书读者只看
+图文 ， 不会去网页看原版 ， 所以**搬运越完整越好**。 落下核心干货 = 读者觉得这条
+笔记 "信息量太少 ， 不值得点赞收藏"。 写完之后照着原 mote 的 `<Section>` 章节
+逐条核对 ， 有遗漏的关键内容（具体数字、 原理、 对比表、 坑、 术语）就补卡。
+
+**🚫 不要 emoji** —— `🎉` `✦` 这种装饰字符也算 ， 一律不要出现在卡片里。
+
+**🚫 不要外链 CTA** —— 小红书禁外链 ， 别写 "看完整版 → motes.dev"、
+"扫码进群"、 "搜公众号 xx" 之类。 发现就删 ， 不然容易被限流甚至封号。
+
+**🚫 不要过时模型** —— 引用模型示例用当前主流：
+✅ Claude Sonnet 4.6 / Claude Opus 4.7 / GPT-4o / Gemini 1.5 Pro / Gemini 2.x
+❌ GPT-4 / GPT-3.5 / Claude 2 / Claude 3 这种已经过时的
+
+**写法**：跟 motes 网站正文写作风格一致 —— 不打包票、 不"带你"、 客观、 简洁。
+营销词（"秒懂"、 "讲透"、 "保姆级"）禁止。
+
+### 3. 截图导出
+
+```js
+async (page) => {
+  await page.setViewportSize({ width: 1100, height: 1460 });
+  for (let i = 1; i <= N; i++) {
+    await page.goto(`http://localhost:5174/redbook-card/<slug>/${i}`);
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(800); // rough.js 异步渲染
+    await page.locator('#redbook-card-export').screenshot({
+      path: `/Users/huhufan/work/dev/motes/public/screenshots/redbook/<slug>-${i}.png`,
+    });
+  }
+}
+```
+
+输出： `public/screenshots/redbook/<slug>-{1..N}.png` ， 每张 1080×1440 PNG。
+
+### 4. 上传到小红书
+
+1. `mcp__playwright__browser_navigate` 到
+   `https://creator.xiaohongshu.com/publish/publish?source=official&target=image`
+   （`target=image` 切到"上传图文"tab ， 默认是上传视频要手动切）。
+   - 第一次会被弹到 `/login` ， 让用户扫码登录后再继续。
+2. 点 `button:has-text("上传图片")` → `browser_file_upload` 一次性传 N 张 PNG。
+3. 填标题：`input[placeholder="填写标题会有更多赞哦"]` ， `≤ 20 字`。
+4. 填正文：**必须用 keyboard.type 逐段输入** ， 不能用 `fill()`
+   （ProseMirror 富文本 ， fill 会丢段落分隔）。
+   - 列表条目（以 `·` 开头）之间用单 `Enter`
+   - 段落间用双 `Enter`
+5. 标签：**用 `keyboard.type('#') + 关键字 + Enter` 自动点选** ， 可靠 100%：
+   ```js
+   for (const tag of tags) {
+     await page.keyboard.type('#');
+     await page.waitForTimeout(800);     // 等下拉初始化 (短了会偶发失败)
+     await page.keyboard.type(tag);
+     await page.waitForTimeout(2000);    // 等下拉刷新到 tag 关键字
+     await page.keyboard.press('Enter'); // 直接 Enter ， 不要按 ArrowDown
+     await page.waitForTimeout(1000);    // 等 mention chip 落地
+     // 实时验证最后一个 mention 是不是想要的 ， 不对就报警
+     const ok = await page.evaluate((expected) => {
+       const tops = document.querySelectorAll('a.tiptap-topic');
+       const last = tops[tops.length - 1];
+       const d = last?.getAttribute('data-topic') || '';
+       const m = d.match(/"name":"([^"]+)"/);
+       return m?.[1] === expected;
+     }, tag);
+     // 如果 ok=false ， 可以选择 Backspace 几次撤销 + 重试
+     await page.keyboard.type(' ');      // 空格分隔
+   }
+   ```
+   关键细节：
+   - 小红书下拉默认已经高亮"最佳匹配"话题 (浏览量最高那个) ， 直接 Enter 即可
+   - **不要用 mouse.click 点候选** —— 不触发 tiptap mention 标准事件 ， chip 会截断成 1~3 字
+   - **不要按 ArrowDown** —— 默认高亮已经对了 ， 多按一下反而跳到错的候选
+   - 验证：取 ProseMirror innerHTML ， 应该看到{' '}
+     `<a class="tiptap-topic" data-topic='{...name:"AI"}'>#AI</a>` 这样的 mention node
+6. 发布：底部红色"发布"按钮在自定义元素 `xhs-publish-btn` (closed shadow DOM)
+   里 ， 用坐标点：
+   ```js
+   await page.mouse.click(760, 955); // viewport 1400×1000 下的发布按钮位置
+   ```
+   URL 跳转到 `/publish/success` 即成功。
+
+### 5. 跟用户的协作流程
+
+每次给 mote 做完一组 redbook 卡：
+
+1. **截图后先打开预览页给用户看** `http://localhost:5174/redbook/<slug>`
+2. 等用户确认（"没问题"、 "可以"等）
+3. **得到明确确认后才上传** —— 上传是公开行为 ， 不可逆。
+4. 用户每次反馈的改进（间距 / 文字 / 视觉）回到本规范， 必要时更新这一节。
+
+### 6. 易踩坑（来自历次踩坑）
+
+- ProseMirror 编辑器残留 mention 节点删不干净 → 用 Ctrl+A + Backspace 循环
+  最多 15 次 + 兜底 20 次 Backspace。 检查 html 是不是 `is-empty is-editor-empty`。
+- "上传图文" tab 用 click 切不动 → 直接 navigate URL 带 `target=image` 参数。
+- 一组卡片改名 / 调整 index 时 ， meta 里的 index 和 JSX 里 CardPager 容易忘同步。
+  解法：CardPager 始终从 meta 读 ， 不手写数字。
+- Playwright 启动新实例 cookie 会丢 ， 用户得重新扫码登录。 长期常态运营建议
+  装专用 `xiaohongshu-mcp` （cookie 持久化）， 但临时发用 Playwright 也行。
+
 ## Git 提交规范
 
 - **commit message 简洁为主**，一行能讲清就一行，不写多段详述。
