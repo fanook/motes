@@ -1,0 +1,21 @@
+【标题】（≤20 字）
+Function Calling 工具调用
+
+【正文】
+为什么 ChatGPT 能查实时天气、 能跑代码、 能发邮件？ 靠的是 Function Calling —— 把"会说话"的 LLM 升级成"会按按钮"的 Agent。
+
+8 张图讲清楚：
+· 它是什么：模型返回结构化请求 ， 你的代码去执行
+· 典型工作流：声明工具 → 模型发起调用 → 回填结果
+· 工具怎么"声明"：name + description + 参数 schema
+· 模型调用时返回什么：tool_call 结构
+· 实战要点：工具别太多 / 严格 schema / 幂等性
+· 常见场景：查数据 / API 编排 / ReAct 多步推理
+
+每天一点 AI 知识碎片 ， 写给做 AI 产品 / 想搞懂 AI 的人。
+
+【标签】（手动输入，每个打完等下拉弹出再点选）
+#AI  #大模型  #AIAgent  #LLM  #AI产品经理  #程序员
+
+【图片】function-calling-1.png ~ function-calling-8.png（同目录，1080×1440）
+第 1 张为封面。

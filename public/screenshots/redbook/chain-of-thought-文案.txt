@@ -1,0 +1,21 @@
+【标题】（≤20 字）
+Chain of Thought 思维链
+
+【正文】
+同样的题 ， 让 AI"一步步想"比"直接答"准很多 —— 这就是 Chain of Thought。 一句魔咒就能提升性能。
+
+8 张图讲清楚：
+· 为什么管用：把一次性计算拆成多个简单步
+· 两种触发：给示例 vs 一句"think step by step"
+· 进阶变种：Self-consistency / ToT / ReAct
+· 推理模型：o 系列 / Claude thinking 把 CoT 内化了
+· 什么时候用 / 不用
+· 几个坑：过程对≠答案对 / 占 token
+
+每天一点 AI 知识碎片 ， 写给做 AI 产品 / 想搞懂 AI 的人。
+
+【标签】（手动输入，每个打完等下拉弹出再点选）
+#AI  #大模型  #LLM  #PromptEngineering  #AI产品经理  #程序员
+
+【图片】chain-of-thought-1.png ~ chain-of-thought-8.png（同目录，1080×1440）
+第 1 张为封面。

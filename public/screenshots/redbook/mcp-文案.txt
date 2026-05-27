@@ -1,0 +1,21 @@
+【标题】（≤20 字）
+MCP 协议是什么
+
+【正文】
+为什么说 MCP 是"AI 时代的 USB-C"？ 一个协议 ， 让任何 AI 客户端接上任何工具服务器。 Anthropic 2024 提出 ， 现在生态已数百个 server。
+
+9 张图讲清楚：
+· 它解决什么：把 N×M 次集成变成 N+M
+· 三个参与方：Host / Client / Server
+· Server 三大原语：Tools / Resources / Prompts
+· 反向能力 + 传输层（stdio / HTTP）
+· 一次会话的样子
+· 为什么开发者关心 + 几个坑
+
+每天一点 AI 知识碎片 ， 写给做 AI 产品 / 想搞懂 AI 的人。
+
+【标签】（手动输入，每个打完等下拉弹出再点选）
+#AI  #大模型  #MCP  #AIAgent  #AI产品经理  #程序员
+
+【图片】mcp-1.png ~ mcp-9.png（同目录，1080×1440）
+第 1 张为封面。
