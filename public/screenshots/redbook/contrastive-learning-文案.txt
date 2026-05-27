@@ -1,0 +1,21 @@
+【标题】（≤20 字）
+对比学习 Contrastive Learning
+
+【正文】
+你用的所有 embedding 模型（OpenAI / Voyage / BGE）背后 ， 都是对比学习训出来的。 它不教模型"标准答案" ， 只教"什么和什么相似"。
+
+8 张图讲清楚：
+· 核心直觉：anchor + positive 拉近 ， negative 推远
+· 正负样本从哪来：in-batch / hard negatives
+· 损失函数 InfoNCE：本质是分类损失
+· 温度系数 τ 的影响
+· 为什么对 embedding 革命性
+· 典型应用：CLIP / SimCLR / 文本 embedding
+
+每天一点 AI 知识碎片 ， 写给做 AI 产品 / 想搞懂 AI 的人。
+
+【标签】（手动输入，每个打完等下拉弹出再点选）
+#AI  #大模型  #机器学习  #Embedding  #深度学习  #AI产品经理
+
+【图片】contrastive-learning-1.png ~ contrastive-learning-8.png（同目录，1080×1440）
+第 1 张为封面。

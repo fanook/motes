@@ -1,0 +1,21 @@
+【标题】（≤20 字）
+BERT 与上下文 embedding
+
+【正文】
+ChatGPT 之后大家只聊 GPT ， 但你每次用 RAG、 每次搜索 ， 背后干活的其实是 BERT。 它是今天所有 embedding / rerank 模型的祖宗。
+
+8 张图讲清楚：
+· 它解决了什么：Word2Vec 的"一词一向量"死穴
+· BERT vs GPT：encoder-only vs decoder-only
+· MLM 掩码语言建模：怎么训"双向"
+· 为什么是 embedding 祖宗：分类 / 抽取 / rerank
+· BERT 之后的演化：RoBERTa / Sentence-BERT
+· 为什么"不火了"：understanding 仍是它的天下
+
+每天一点 AI 知识碎片 ， 写给做 AI 产品 / 想搞懂 AI 的人。
+
+【标签】（手动输入，每个打完等下拉弹出再点选）
+#AI  #大模型  #BERT  #Embedding  #深度学习  #AI产品经理
+
+【图片】bert-1.png ~ bert-8.png（同目录，1080×1440）
+第 1 张为封面。

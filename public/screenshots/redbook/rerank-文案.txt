@@ -1,0 +1,20 @@
+【标题】（≤20 字）
+Rerank 重排
+
+【正文】
+embedding 召回的结果"找得全但排不准"。 Rerank 就是 RAG 精度的最后一道关 —— 加上它 ， 回答正确率能提升 10~20 个百分点。
+
+7 张图讲清楚：
+· bi-encoder vs cross-encoder：快 vs 准
+· RAG + rerank 流程：召回 top-100 → 精排 top-5
+· 主流 Reranker：Cohere / Voyage / BGE
+· 效果有多大：精度从 40% → 80%
+· 成本权衡：实战召回 50~100 ， 重排取 3~5
+
+每天一点 AI 知识碎片 ， 写给做 AI 产品 / 想搞懂 AI 的人。
+
+【标签】（手动输入，每个打完等下拉弹出再点选）
+#AI  #大模型  #RAG  #向量数据库  #AI产品经理  #程序员
+
+【图片】rerank-1.png ~ rerank-7.png（同目录，1080×1440）
+第 1 张为封面。
