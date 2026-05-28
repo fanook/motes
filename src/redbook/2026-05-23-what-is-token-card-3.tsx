@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import rough from 'roughjs';
-import { INK, INK_SEPIA, PEN } from '../components/handwriting';
+import { INK, PEN } from '../components/handwriting';
 import {
   CardPager,
   CardSectionHeading,

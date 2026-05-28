@@ -1,4 +1,4 @@
-import { INK, INK_GREEN, INK_RED, INK_SEPIA, PEN } from '../components/handwriting';
+import { INK, INK_GREEN, INK_RED } from '../components/handwriting';
 import {
   CardPager,
   CardSectionHeading,

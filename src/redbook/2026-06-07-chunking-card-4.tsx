@@ -3,7 +3,6 @@ import {
   CardPager,
   CardSectionHeading,
   CardSignature,
-  CardText,
   RedbookCard,
 } from '../components/redbook-card';
 import type { RedbookCardMeta } from '../lib/redbook';

@@ -28,7 +28,7 @@ function UCurve() {
     svg.appendChild(rc.line(80, 320, 820, 320, { stroke: INK, strokeWidth: 3, roughness: 1 }));
     svg.appendChild(rc.line(80, 40, 80, 320, { stroke: INK, strokeWidth: 3, roughness: 1 }));
     // U 形曲线（召回率：高-低-高）
-    const pts = [];
+    const pts: [number, number][] = [];
     for (let i = 0; i <= 20; i++) {
       const x = 80 + (i / 20) * 740;
       const t = i / 20;
@@ -39,7 +39,7 @@ function UCurve() {
     }
     svg.appendChild(rc.curve(pts, { stroke: INK_RED, strokeWidth: 5, roughness: 1.2, seed: 7 }));
     // 标注
-    const label = (x, y, txt, color) => {
+    const label = (x: number, y: number, txt: string, color: string) => {
       const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       t.setAttribute('x', String(x));
       t.setAttribute('y', String(y));
