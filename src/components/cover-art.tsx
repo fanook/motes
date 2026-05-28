@@ -791,6 +791,133 @@ const drawThreePaths: SymbolDrawer = (g, rc, o) => {
   });
 };
 
+/* —— 22. Planning（搜索树 + 高亮主路径 + 回溯 X） —— */
+const drawPlanningTree: SymbolDrawer = (g, rc, o) => {
+  // 根节点（顶部）
+  const root = { x: 250, y: 60 };
+  g.appendChild(fillCircle(rc, root.x, root.y, 32, o, { solidStroke: true, seedOffset: 1, stroke: 6 }));
+
+  // Level-1: 4 个候选分支
+  const l1 = [
+    { x: 70, y: 230, status: 'normal' as const },
+    { x: 180, y: 230, status: 'main' as const },   // 主路径节点（被选中）
+    { x: 320, y: 230, status: 'normal' as const },
+    { x: 430, y: 230, status: 'failed' as const }, // 探索失败 ， 打 X
+  ];
+
+  l1.forEach((p, i) => {
+    const isMain = p.status === 'main';
+    const isFailed = p.status === 'failed';
+    // 连线 ， 主路径加粗
+    g.appendChild(
+      rc.line(root.x, root.y, p.x, p.y, {
+        stroke: o.stroke,
+        strokeWidth: isMain ? 9 : 3,
+        roughness: 1.3,
+        seed: o.seed + 20 + i,
+      })
+    );
+    // 节点
+    g.appendChild(
+      fillCircle(rc, p.x, p.y, isMain ? 26 : 20, o, {
+        solidStroke: isMain,
+        stroke: isMain ? 6 : 4,
+        seedOffset: 50 + i,
+      })
+    );
+    // 失败分支打 X
+    if (isFailed) {
+      g.appendChild(
+        rc.line(p.x - 18, p.y - 18, p.x + 18, p.y + 18, {
+          stroke: o.stroke,
+          strokeWidth: 5,
+          roughness: 1.4,
+          seed: o.seed + 90 + i,
+        })
+      );
+      g.appendChild(
+        rc.line(p.x + 18, p.y - 18, p.x - 18, p.y + 18, {
+          stroke: o.stroke,
+          strokeWidth: 5,
+          roughness: 1.4,
+          seed: o.seed + 95 + i,
+        })
+      );
+    }
+  });
+
+  // Level-2: 从主路径节点（l1[1]）再展开 2 个 ， 其中一个是最终选中
+  const l2 = [
+    { x: 110, y: 400, status: 'normal' as const },
+    { x: 220, y: 400, status: 'final' as const },
+  ];
+  l2.forEach((p, i) => {
+    const isFinal = p.status === 'final';
+    g.appendChild(
+      rc.line(l1[1].x, l1[1].y, p.x, p.y, {
+        stroke: o.stroke,
+        strokeWidth: isFinal ? 9 : 3,
+        roughness: 1.3,
+        seed: o.seed + 120 + i,
+      })
+    );
+    g.appendChild(
+      fillCircle(rc, p.x, p.y, isFinal ? 24 : 16, o, {
+        solidStroke: isFinal,
+        stroke: isFinal ? 6 : 4,
+        seedOffset: 150 + i,
+      })
+    );
+  });
+};
+
+/* —— 21. AI Agent（中央大脑 + 四件套 + 循环箭头） —— */
+const drawAgent: SymbolDrawer = (g, rc, o) => {
+  // 中央 LLM 大方块
+  g.appendChild(fillRect(rc, 195, 195, 110, 110, o, { stroke: 8 }));
+  // 中央实心点表示"大脑"
+  g.appendChild(fillCircle(rc, 250, 250, 20, o, { solidStroke: true, seedOffset: 1 }));
+  // 4 个外围组件（上下左右）：感知 / 工具 / 记忆 / 规划
+  const corners: [number, number][] = [
+    [195, 60],   // 上 (感知)
+    [395, 195],  // 右 (工具)
+    [195, 380],  // 下 (记忆)
+    [50, 195],   // 左 (规划)
+  ];
+  corners.forEach((c, i) => {
+    g.appendChild(fillRect(rc, c[0], c[1], 60, 60, o, { stroke: 5, seedOffset: 10 + i }));
+  });
+  // 4 条循环箭头（顺时针 think → act → observe → memory）
+  // 上→右
+  g.appendChild(
+    rc.curve(
+      [[280, 95], [340, 130], [400, 200]],
+      { stroke: o.stroke, strokeWidth: 3, roughness: 1.3, seed: o.seed + 30 }
+    )
+  );
+  // 右→下
+  g.appendChild(
+    rc.curve(
+      [[420, 270], [380, 340], [280, 390]],
+      { stroke: o.stroke, strokeWidth: 3, roughness: 1.3, seed: o.seed + 31 }
+    )
+  );
+  // 下→左
+  g.appendChild(
+    rc.curve(
+      [[200, 410], [130, 380], [80, 280]],
+      { stroke: o.stroke, strokeWidth: 3, roughness: 1.3, seed: o.seed + 32 }
+    )
+  );
+  // 左→上 (闭环)
+  g.appendChild(
+    rc.curve(
+      [[80, 200], [130, 130], [200, 90]],
+      { stroke: o.stroke, strokeWidth: 3, roughness: 1.3, seed: o.seed + 33 }
+    )
+  );
+};
+
 /* ─────────────────────────────────────────────
    Slug → drawer 映射
    ───────────────────────────────────────────── */
@@ -815,6 +942,8 @@ const SYMBOL_REGISTRY: { test: (slug: string) => boolean; drawer: SymbolDrawer }
   { test: (s) => s.includes('contrastive'), drawer: drawContrastive },
   { test: (s) => s.includes('bert'), drawer: drawBidirectional },
   { test: (s) => s.includes('train-vs') || s.includes('finetune'), drawer: drawThreePaths },
+  { test: (s) => s.includes('ai-agent'), drawer: drawAgent },
+  { test: (s) => s.includes('planning-paradigms'), drawer: drawPlanningTree },
 ];
 
 function pickDrawer(slug: string): SymbolDrawer {
