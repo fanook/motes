@@ -935,10 +935,31 @@ const drawTaskLoop: SymbolDrawer = (g, rc, o) => {
   g.appendChild(fillCircle(rc, 350, 280, 12, o, { solidStroke: true, seedOffset: 40 }));
 };
 
+/* —— Harness：中心模型与四周工作系统 —— */
+const drawHarness: SymbolDrawer = (g, rc, o) => {
+  g.appendChild(rc.rectangle(105, 105, 290, 290, {
+    stroke: o.stroke, strokeWidth: 5, roughness: 1.4, seed: o.seed,
+  }));
+  const links: [number, number, number, number][] = [
+    [250, 115, 250, 195], [385, 250, 305, 250],
+    [250, 385, 250, 305], [115, 250, 195, 250],
+  ];
+  links.forEach(([x1, y1, x2, y2], i) => g.appendChild(rc.line(x1, y1, x2, y2, {
+    stroke: o.stroke, strokeWidth: 4, roughness: 1.4, seed: o.seed + 10 + i,
+  })));
+  g.appendChild(fillCircle(rc, 250, 250, 54, o, { stroke: 5, seedOffset: 20 }));
+  const centerInk = o.stroke === '#f4ecd8' ? '#1a1a1a' : o.stroke;
+  g.appendChild(fillCircle(rc, 250, 250, 14, { ...o, stroke: centerInk }, { solidStroke: true, seedOffset: 21 }));
+  [[220, 70], [365, 220], [220, 365], [70, 220]].forEach(([x, y], i) => {
+    g.appendChild(fillRect(rc, x, y, 60, 60, o, { stroke: 4, seedOffset: 30 + i }));
+  });
+};
+
 /* ─────────────────────────────────────────────
    Slug → drawer 映射
    ───────────────────────────────────────────── */
 const SYMBOL_REGISTRY: { test: (slug: string) => boolean; drawer: SymbolDrawer }[] = [
+  { test: (s) => s.includes('agent-harness'), drawer: drawHarness },
   { test: (s) => s.includes('codex-task-loop'), drawer: drawTaskLoop },
   { test: (s) => s.includes('hello-motes'), drawer: drawNotebook },
   { test: (s) => s.includes('what-is-token'), drawer: drawBrokenBlocks },

@@ -93,7 +93,9 @@ changelog?: { date: string; note: string }[]
 
 **新候选**（之前写文章时挖出的、 还没单独成篇）：
 ```
-[ ] Agent Harness：任务状态、工具调度与错误恢复（由 Codex 如何做任务衍生）
+[x] Agent Harness：任务状态、工具调度与错误恢复 → 2026-10-10-agent-harness.tsx
+[ ] Skill、Tool 与 MCP：操作指导、实际动作和外部连接如何分工（由 Harness 是什么衍生）
+[ ] AI 的记忆在哪里：模型上下文、运行状态与长期记忆（由 Harness 是什么衍生）
 [ ] Prompt injection：工具返回的资料为什么不能直接当指令（由 Codex 如何做任务衍生）
 [ ] Agentic workflows / ReAct
 [ ] Constitutional AI（RLAIF 的具体实现）
