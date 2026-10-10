@@ -958,7 +958,32 @@ const drawHarness: SymbolDrawer = (g, rc, o) => {
 /* ─────────────────────────────────────────────
    Slug → drawer 映射
    ───────────────────────────────────────────── */
+const drawCapabilityLinks: SymbolDrawer = (g, rc, o) => {
+  g.appendChild(fillRect(rc, 70, 170, 105, 155, o, { stroke: 5 }));
+  g.appendChild(fillRect(rc, 220, 210, 65, 80, o, { stroke: 5, seedOffset: 1 }));
+  g.appendChild(fillRect(rc, 330, 170, 100, 155, o, { stroke: 5, seedOffset: 2 }));
+  [[95, 205, 150, 205], [95, 245, 140, 245], [95, 285, 150, 285],
+    [175, 250, 220, 250], [285, 250, 330, 250],
+    [365, 215, 395, 215], [365, 250, 395, 250], [365, 285, 395, 285],
+  ].forEach(([x1, y1, x2, y2], i) => g.appendChild(rc.line(x1, y1, x2, y2, {
+    stroke: o.stroke === '#f4ecd8' && (i < 3 || i > 4) ? '#1a1a1a' : o.stroke,
+    strokeWidth: 4, roughness: 1.4, seed: o.seed + 10 + i,
+  })));
+};
+
+const drawModelSelection: SymbolDrawer = (g, rc, o) => {
+  [[100, 265, 70, 90], [215, 205, 70, 150], [330, 145, 70, 210]].forEach(([x, y, w, h], i) => {
+    g.appendChild(fillRect(rc, x, y, w, h, o, { stroke: 5, seedOffset: i }));
+  });
+  [[70, 385, 430, 385], [250, 130, 285, 95], [285, 95, 335, 95]].forEach(([x1, y1, x2, y2], i) => {
+    g.appendChild(rc.line(x1, y1, x2, y2, { stroke: o.stroke, strokeWidth: 4, roughness: 1.4, seed: o.seed + 10 + i }));
+  });
+  g.appendChild(fillCircle(rc, 250, 130, 15, o, { solidStroke: true, seedOffset: 20 }));
+};
+
 const SYMBOL_REGISTRY: { test: (slug: string) => boolean; drawer: SymbolDrawer }[] = [
+  { test: (s) => s.includes('choosing-models'), drawer: drawModelSelection },
+  { test: (s) => s.includes('skill-tool-mcp'), drawer: drawCapabilityLinks },
   { test: (s) => s.includes('agent-harness'), drawer: drawHarness },
   { test: (s) => s.includes('codex-task-loop'), drawer: drawTaskLoop },
   { test: (s) => s.includes('hello-motes'), drawer: drawNotebook },

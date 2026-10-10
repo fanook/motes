@@ -94,7 +94,7 @@ changelog?: { date: string; note: string }[]
 **新候选**（之前写文章时挖出的、 还没单独成篇）：
 ```
 [x] Agent Harness：任务状态、工具调度与错误恢复 → 2026-10-10-agent-harness.tsx
-[ ] Skill、Tool 与 MCP：操作指导、实际动作和外部连接如何分工（由 Harness 是什么衍生）
+[x] Skill、Tool 与 MCP：操作指导、实际动作和外部连接如何分工 → 2026-10-10-skill-tool-mcp.tsx
 [ ] AI 的记忆在哪里：模型上下文、运行状态与长期记忆（由 Harness 是什么衍生）
 [ ] Prompt injection：工具返回的资料为什么不能直接当指令（由 Codex 如何做任务衍生）
 [ ] Agentic workflows / ReAct
@@ -104,7 +104,7 @@ changelog?: { date: string; note: string }[]
 [ ] BM25 经典关键词检索算法
 [ ] AI 产品成本结构 PM 视角全景
 [ ] Streaming / TTFT / Throughput 性能优化全景
-[ ] 选模型决策框架（Haiku / Sonnet / Opus / GPT-4o-mini 等）
+[x] 选模型决策框架：OpenAI 与 Claude 的定位、场景与成本 → 2026-10-10-choosing-models.tsx
 ```
 
 **工作流**：
