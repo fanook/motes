@@ -918,10 +918,28 @@ const drawAgent: SymbolDrawer = (g, rc, o) => {
   );
 };
 
+/* —— Codex：资料页与执行块之间的往返 —— */
+const drawTaskLoop: SymbolDrawer = (g, rc, o) => {
+  g.appendChild(fillRect(rc, 110, 125, 140, 180, o, { stroke: 5 }));
+  g.appendChild(fillRect(rc, 300, 230, 100, 100, o, { stroke: 5, seedOffset: 1 }));
+  const lines: [number, number, number, number][] = [
+    [140, 170, 215, 170], [140, 210, 200, 210], [140, 250, 215, 250],
+    [250, 165, 350, 165], [350, 165, 350, 220],
+    [340, 205, 350, 220], [360, 205, 350, 220],
+    [350, 340, 350, 380], [350, 380, 180, 380], [180, 380, 180, 315],
+    [170, 330, 180, 315], [190, 330, 180, 315],
+  ];
+  lines.forEach(([x1, y1, x2, y2], i) => g.appendChild(rc.line(x1, y1, x2, y2, {
+    stroke: o.stroke, strokeWidth: 4, roughness: 1.4, seed: o.seed + 10 + i,
+  })));
+  g.appendChild(fillCircle(rc, 350, 280, 12, o, { solidStroke: true, seedOffset: 40 }));
+};
+
 /* ─────────────────────────────────────────────
    Slug → drawer 映射
    ───────────────────────────────────────────── */
 const SYMBOL_REGISTRY: { test: (slug: string) => boolean; drawer: SymbolDrawer }[] = [
+  { test: (s) => s.includes('codex-task-loop'), drawer: drawTaskLoop },
   { test: (s) => s.includes('hello-motes'), drawer: drawNotebook },
   { test: (s) => s.includes('what-is-token'), drawer: drawBrokenBlocks },
   { test: (s) => s.includes('prompt-caching'), drawer: drawCacheLayers },

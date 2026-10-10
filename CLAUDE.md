@@ -93,6 +93,8 @@ changelog?: { date: string; note: string }[]
 
 **新候选**（之前写文章时挖出的、 还没单独成篇）：
 ```
+[ ] Agent Harness：任务状态、工具调度与错误恢复（由 Codex 如何做任务衍生）
+[ ] Prompt injection：工具返回的资料为什么不能直接当指令（由 Codex 如何做任务衍生）
 [ ] Agentic workflows / ReAct
 [ ] Constitutional AI（RLAIF 的具体实现）
 [ ] LoRA / QLoRA 微调技巧详解
