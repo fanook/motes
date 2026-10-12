@@ -105,6 +105,8 @@ changelog?: { date: string; note: string }[]
 [ ] AI 产品成本结构 PM 视角全景
 [ ] Streaming / TTFT / Throughput 性能优化全景
 [x] 选模型决策框架：OpenAI 与 Claude 的定位、场景与成本 → 2026-10-10-choosing-models.tsx
+[x] 决策模型：Jev 的类型化判断、概率、流程分工与边界 → 2026-10-12-jev-decision-model.tsx
+[ ] 模型的概率可信吗：校准、置信度与业务门槛（由 Jev 决策模型衍生）
 ```
 
 **工作流**：
