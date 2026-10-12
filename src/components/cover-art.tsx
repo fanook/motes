@@ -990,7 +990,16 @@ const drawDecisionFork: SymbolDrawer = (g, rc, o) => {
   g.appendChild(fillCircle(rc, 385, 380, 45, o, { stroke: 4, seedOffset: 21 }));
 };
 
+const drawResultSelection: SymbolDrawer = (g, rc, o) => {
+  [0, 1, 2].forEach(i => {
+    g.appendChild(fillRect(rc, 95 + i * 18, 110 + i * 18, 185, 230, o, { stroke: 4, seedOffset: i }));
+  });
+  g.appendChild(rc.line(320, 250, 365, 250, { stroke: o.stroke, strokeWidth: 5, roughness: 1.4, seed: o.seed + 10 }));
+  g.appendChild(fillRect(rc, 380, 205, 45, 90, o, { stroke: 5, seedOffset: 20 }));
+};
+
 const SYMBOL_REGISTRY: { test: (slug: string) => boolean; drawer: SymbolDrawer }[] = [
+  { test: (s) => s.includes('large-tool-results'), drawer: drawResultSelection },
   { test: (s) => s.includes('jev-decision-model'), drawer: drawDecisionFork },
   { test: (s) => s.includes('choosing-models'), drawer: drawModelSelection },
   { test: (s) => s.includes('skill-tool-mcp'), drawer: drawCapabilityLinks },

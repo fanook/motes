@@ -107,6 +107,8 @@ changelog?: { date: string; note: string }[]
 [x] 选模型决策框架：OpenAI 与 Claude 的定位、场景与成本 → 2026-10-10-choosing-models.tsx
 [x] 决策模型：Jev 的类型化判断、概率、流程分工与边界 → 2026-10-12-jev-decision-model.tsx
 [ ] 模型的概率可信吗：校准、置信度与业务门槛（由 Jev 决策模型衍生）
+[x] 工具结果太大怎么办：过滤、分页、程序计算、外部存储、检索与压缩 → 2026-10-12-large-tool-results.tsx
+[ ] 如何证明 Agent 没有漏查：覆盖范围、证据定位与全量验收（由工具结果太大衍生）
 ```
 
 **工作流**：
